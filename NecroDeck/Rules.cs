@@ -123,25 +123,25 @@ namespace NecroDeck
             }
             if (v == "Tendrils")
             {
-                ColorDict[i] = Color.None; //cant imprint
+                ColorDict[i] = Color.None; //can't imprint tendrils so i fake it.
 
                 return NoOp;
             }
             if (v == "Valakut")
             {
-                ColorDict[i] = Color.RedGreen; //cant imprint
+                ColorDict[i] = Color.RedGreen; 
 
                 return NoOp;
             }
             if (v == "SummonersPact")
             {
-                ColorDict[i] = Color.RedGreen; //cant imprint
+                ColorDict[i] = Color.RedGreen; 
 
                 return SummonersPact;
             }
             if (v == "BrainSpoil")
             {
-                ColorDict[i] = Color.Black; //cant imprint
+                ColorDict[i] = Color.Black; 
 
                 return BrainSpoil;
             }
@@ -160,12 +160,12 @@ namespace NecroDeck
         private static IEnumerable<State> SummonersPact(State arg)
         {
             yield return arg.Clone().With(p => p.RedGreenMana++);
-            if (arg.RedGreenMana > 0) //TODO inte om man redan har va heter den
+            if (arg.RedGreenMana > 0 && Global.ContainsCantor && !arg.RunState.CantorInHand) //TODO if wildcantor is in deck and not it hand
             {
                 yield return arg.Clone().With(p => { p.RedGreenMana--; p.BlackMana++; });
             }
 
-            //yield return arg.Clone().With(p => { p.BargainFodder++; });
+            //yield return arg.Clone().With(p => { p.BargainFodder++; }); //but no such card exist
         }
 
         private static IEnumerable<State> NoOp(State arg)
@@ -237,7 +237,7 @@ namespace NecroDeck
             }
 
 
-            yield return arg.Clone().With(p => { p.BargainFodder++; });
+            yield return arg.Clone().With(p => { p.BargainFodder++; }); //no imprint
 
         }
 

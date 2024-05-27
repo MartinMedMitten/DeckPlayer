@@ -5,11 +5,15 @@ using System.Text;
 
 namespace NecroDeck
 {
+    class RunState
+    {
+        public bool CantorInHand { get; set; }
+    }
     class State
     {
         public List<int> Cards;
       
-
+        public RunState RunState { get; set; }
         public void RemoveCard(int x)
         {
             Cards.Remove(x);
@@ -40,6 +44,7 @@ namespace NecroDeck
         {
             return new State
             {
+                RunState = RunState,
                 Cards = new List<int>(Cards),
                 BlackMana = BlackMana,
                 RedGreenMana = RedGreenMana,
@@ -54,7 +59,7 @@ namespace NecroDeck
         {
             if (obj is State other)
             {
-                return  //TODO FLYTTA SIST
+                return  
                        BlackMana == other.BlackMana &&
                        RedGreenMana == other.RedGreenMana &&
                        OtherMana == other.OtherMana &&

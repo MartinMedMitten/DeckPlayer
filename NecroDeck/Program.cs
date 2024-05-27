@@ -2,27 +2,11 @@
 using System.Collections.Generic;
 
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace NecroDeck
 {
-    public class Global
-    {
-        public static Deck Deck { get; set; }
-        public static bool DebugOutput { get; set; }
-        public static Random R = new Random(1);
-
-    }
-    public class Deck
-    {
-        public List<string> Cards { get; set; }
-        public Deck()
-        {
-            Cards = File.ReadAllLines("decklist.txt").ToList();
-        }
-    }
     class Program
     {
 
@@ -36,14 +20,14 @@ namespace NecroDeck
             var stopWatch = new Stopwatch();
             stopWatch.Start();
             var runner = new DeckPlayer();
-            List<RunResult> runResults = new List<RunResult>();
+            var runResults = new List<RunResult>();
 
             for (int i = 0; i < (Global.DebugOutput ? 100 : 10000); i++)
             {
                 if (Global.DebugOutput)
                 {
                     if (i == 67)
-                    {//WildCantor, PactofNegation, ChromeMox, GemstoneMine, Necro, VaultOfWhispers, CabalRitual,
+                    {
 
                     }
                     Console.Write(i + ": ");
@@ -57,8 +41,8 @@ namespace NecroDeck
                 {
                     if (Global.DebugOutput)
                         Console.WriteLine("WIN");
-                    
-            
+
+
                 }
                 else
                 {
@@ -70,15 +54,15 @@ namespace NecroDeck
             int wins = runResults.Where(p => p.Win).Count();
             int prot = runResults.Where(p => p.Protected).Count();
 
-            Console.WriteLine(stopWatch.ElapsedMilliseconds + " ms"); //9309 ms med card1/2 etc
-            
-             Console.WriteLine("wins " + wins);
-             Console.WriteLine("Protected wins " + prot);
+            Console.WriteLine(stopWatch.ElapsedMilliseconds + " ms");
+
+            Console.WriteLine("wins " + wins);
+            Console.WriteLine("Protected wins " + prot);
 
             Console.ReadKey();
 
         }
-        
+
 
 
     }

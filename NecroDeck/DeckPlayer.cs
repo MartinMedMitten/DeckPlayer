@@ -15,12 +15,15 @@ namespace NecroDeck
         public RunResult Run(Deck deck, int seed)
         {
             r = new Random(seed);
-            //s.Card1
             int mulligans = 0;
             takeMulligan:
             var start = new State();
             var hand = Get7Unique(deck);
             start.Cards = hand;
+            start.RunState = new RunState
+            {
+                CantorInHand = start.Cards.Contains(Global.CantorId)
+            };
 
             bool containsPact = start.ContainsCards("PactOfNegation");
 
@@ -41,6 +44,10 @@ namespace NecroDeck
             {
                 foreach (var x in TakeMulligan(mulligans, start))
                 {
+                    if (x.RunState.CantorInHand)
+                    {
+                        x.RunState.CantorInHand = x.Cards.Contains(Global.CantorId); //might have mulliganed it away
+                    }
                     open.Enqueue(x);
                 }
             }
@@ -53,10 +60,6 @@ namespace NecroDeck
                 //{
 
                 //}
-                if (s.Win)
-                {
-                   // return true;
-                }
                 var newActions = GetActions(s);
 
                 foreach (var x in newActions)
@@ -80,7 +83,7 @@ namespace NecroDeck
             if (mulligans < 4) //cant win on 5 mulligans
             {
                 mulligans++;
-                goto takeMulligan;
+                goto takeMulligan; //sue me
             }
             return new RunResult();
         }
@@ -116,7 +119,7 @@ namespace NecroDeck
         private IEnumerable<State> TakeMulligan(int mullC, State start)
         {
             mullC--;
-            foreach (var xa in start.Cards.Reverse<int>()) //mulligan from the end
+            foreach (var xa in start.Cards) 
             {
                 var c = start.Clone().With(p => p.RemoveCard(xa));
                 if (mullC > 0)
