@@ -11,6 +11,16 @@ namespace NecroDeck
             a(t);
             return t;
         }
+
+        public static void Enqueue<T>(this Stack<T> s, T item)
+        {
+            s.Push(item);
+        }
+        public static T Dequeue<T>(this Stack<T> s)
+        {
+            return s.Pop();
+        }
+
     }
     enum Color
     {
@@ -31,8 +41,6 @@ namespace NecroDeck
                 RuleDict[i] = GetFunc(deck.Cards[i], i);
 
             }
-
-
         }
 
         private static Func<State, IEnumerable<State>> GetFunc(string v, int i)
@@ -131,8 +139,22 @@ namespace NecroDeck
 
                 return SummonersPact;
             }
+            if (v == "BrainSpoil")
+            {
+                ColorDict[i] = Color.Black; //cant imprint
+
+                return BrainSpoil;
+            }
 
             throw new NotImplementedException();
+        }
+
+        private static IEnumerable<State> BrainSpoil(State arg)
+        {
+            if (arg.BlackMana > 4 && (arg.BlackMana > 5 || arg.RedGreenMana > 0 || arg.OtherMana > 0))
+            {
+                yield return arg.Clone().With(p => p.Win = true);
+            }
         }
 
         private static IEnumerable<State> SummonersPact(State arg)
@@ -142,6 +164,8 @@ namespace NecroDeck
             {
                 yield return arg.Clone().With(p => { p.RedGreenMana--; p.BlackMana++; });
             }
+
+            //yield return arg.Clone().With(p => { p.BargainFodder++; });
         }
 
         private static IEnumerable<State> NoOp(State arg)
@@ -154,12 +178,14 @@ namespace NecroDeck
             if (arg.RedGreenMana > 1)
             {
                 yield return arg.Clone().With(p => { p.RedGreenMana -= 2; p.BlackMana += 2; });
+                yield return arg.Clone().With(p => { p.RedGreenMana -= 1; p.BlackMana += 1; });
             }
             if (arg.RedGreenMana > 0)
             {
                 if (arg.OtherMana > 0)
                 {
                     yield return arg.Clone().With(p => { p.BlackMana += 2; p.OtherMana--; p.RedGreenMana--; });
+                    yield return arg.Clone().With(p => { p.BlackMana += 1; p.OtherMana--; });
                 }
                
                 if (arg.BlackMana > 0)
@@ -189,131 +215,30 @@ namespace NecroDeck
             {
                 yield return arg.Clone().With(p => p.Win = true);
             }
-            ImmutableList
         }
 
         private static IEnumerable<State> ChromeMox(State arg)
         {
-           
-            if (arg.Card1 >= 0)
+            foreach (var x in arg.Cards)
             {
-                var color = ColorDict[arg.Card1];
-                if (color == Color.Black) 
+                var color = ColorDict[x];
+                if (color == Color.Black)
                 {
-                    yield return arg.Clone().With(p => { p.BlackMana++; p.BargainFodder++; p.Card1 = -1; p.CardsInHand--; });
+                    yield return arg.Clone().With(p => { p.BlackMana++; p.BargainFodder++; p.RemoveCard(x); });
                 }
                 if (color == Color.RedGreen)
                 {
-                    yield return arg.Clone().With(p => { p.RedGreenMana++; p.BargainFodder++; p.Card1 = -1; p.CardsInHand--; });
+                    yield return arg.Clone().With(p => { p.RedGreenMana++; p.BargainFodder++; p.RemoveCard(x);  });
                 }
                 if (color == Color.Other)
                 {
-                    yield return arg.Clone().With(p => { p.OtherMana++; p.BargainFodder++; p.Card1 = -1; p.CardsInHand--; });
+                    yield return arg.Clone().With(p => { p.OtherMana++; p.BargainFodder++; p.RemoveCard(x); });
                 }
             }
 
-            if (arg.Card2 >= 0)
-            {
-                var color = ColorDict[arg.Card2];
-                if (color == Color.Black)
-                {
-                    yield return arg.Clone().With(p => { p.BlackMana++; p.BargainFodder++; p.Card2 = -1; p.CardsInHand--; });
-                }
-                if (color == Color.RedGreen)
-                {
-                    yield return arg.Clone().With(p => { p.RedGreenMana++; p.BargainFodder++; p.Card2 = -1; p.CardsInHand--; });
-                }
-                if (color == Color.Other)
-                {
-                    yield return arg.Clone().With(p => { p.OtherMana++; p.BargainFodder++; p.Card2 = -1; p.CardsInHand--; });
-                }
-            }
-
-            if (arg.Card3 >= 0)
-            {
-                var color = ColorDict[arg.Card3];
-                if (color == Color.Black)
-                {
-                    yield return arg.Clone().With(p => { p.BlackMana++; p.BargainFodder++; p.Card3 = -1; p.CardsInHand--; });
-                }
-                if (color == Color.RedGreen)
-                {
-                    yield return arg.Clone().With(p => { p.RedGreenMana++; p.BargainFodder++; p.Card3 = -1; p.CardsInHand--; });
-                }
-                if (color == Color.Other)
-                {
-                    yield return arg.Clone().With(p => { p.OtherMana++; p.BargainFodder++; p.Card3 = -1; p.CardsInHand--; });
-                }
-            }
-
-            if (arg.Card4 >= 0)
-            {
-                var color = ColorDict[arg.Card4];
-                if (color == Color.Black)
-                {
-                    yield return arg.Clone().With(p => { p.BlackMana++; p.BargainFodder++; p.Card4 = -1; p.CardsInHand--; });
-                }
-                if (color == Color.RedGreen)
-                {
-                    yield return arg.Clone().With(p => { p.RedGreenMana++; p.BargainFodder++; p.Card4 = -1; p.CardsInHand--; });
-                }
-                if (color == Color.Other)
-                {
-                    yield return arg.Clone().With(p => { p.OtherMana++; p.BargainFodder++; p.Card4 = -1; p.CardsInHand--; });
-                }
-            }
-            if (arg.Card5 >= 0)
-            {
-                var color = ColorDict[arg.Card5];
-                if (color == Color.Black)
-                {
-                    yield return arg.Clone().With(p => { p.BlackMana++; p.BargainFodder++; p.Card5 = -1; p.CardsInHand--; });
-                }
-                if (color == Color.RedGreen)
-                {
-                    yield return arg.Clone().With(p => { p.RedGreenMana++; p.BargainFodder++; p.Card5 = -1; p.CardsInHand--; });
-                }
-                if (color == Color.Other)
-                {
-                    yield return arg.Clone().With(p => { p.OtherMana++; p.BargainFodder++; p.Card5 = -1; p.CardsInHand--; });
-                }
-            }
-            if (arg.Card6 >= 0)
-            {
-                var color = ColorDict[arg.Card6];
-                if (color == Color.Black)
-                {
-                    yield return arg.Clone().With(p => { p.BlackMana++; p.BargainFodder++; p.Card6 = -1; p.CardsInHand--; });
-                }
-                if (color == Color.RedGreen)
-                {
-                    yield return arg.Clone().With(p => { p.RedGreenMana++; p.BargainFodder++; p.Card6 = -1; p.CardsInHand--; });
-                }
-                if (color == Color.Other)
-                {
-                    yield return arg.Clone().With(p => { p.OtherMana++; p.BargainFodder++; p.Card6 = -1; p.CardsInHand--; });
-                }
-            }
-            if (arg.Card7 >= 0)
-            {
-                var color = ColorDict[arg.Card7];
-                if (color == Color.Black)
-                {
-                    yield return arg.Clone().With(p => { p.BlackMana++; p.BargainFodder++; p.Card7 = -1; p.CardsInHand--; });
-                }
-                if (color == Color.RedGreen)
-                {
-                    yield return arg.Clone().With(p => { p.RedGreenMana++; p.BargainFodder++; p.Card7 = -1; p.CardsInHand--; });
-                }
-                if (color == Color.Other)
-                {
-                    yield return arg.Clone().With(p => { p.OtherMana++; p.BargainFodder++; p.Card7 = -1; p.CardsInHand--; });
-                }
-            }
 
             yield return arg.Clone().With(p => { p.BargainFodder++; });
 
-            //todo ingen imprint på chromemox! TESTA INFERNAL TUTOR
         }
 
         private static IEnumerable<State> LotusPetal(State arg)
