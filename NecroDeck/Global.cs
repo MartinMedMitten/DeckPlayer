@@ -11,5 +11,7 @@ namespace NecroDeck
 
         public static Random R = new Random(1);
 
+        public static bool RunPostNecro { get; set; } = false;
+
     }
 }

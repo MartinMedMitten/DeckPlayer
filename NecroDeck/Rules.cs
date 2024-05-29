@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace NecroDeck
 {
@@ -22,17 +23,19 @@ namespace NecroDeck
         }
 
     }
-    enum Color
-    {
-        Black,
-        RedGreen,
-        Other,
-        None
-    }
+    //enum Color
+    //{
+    //    Black,
+    //    RedGreen,
+    //    Red,
+    //    Green,
+    //    Other,
+    //    None
+    //}
     class Rules
     {
         public static Dictionary<int, Func<State, IEnumerable<State>>> RuleDict = new Dictionary<int, Func<State, IEnumerable<State>>>();
-        public static Dictionary<int, Color> ColorDict = new Dictionary<int, Color>();
+        public static Dictionary<int, Mana> ColorDict = new Dictionary<int, Mana>();
 
         public static void InitRuleDict(Deck deck)
         {
@@ -47,114 +50,132 @@ namespace NecroDeck
         {
             if (v == "dark ritual")
             {
-                ColorDict[i] = Color.Black;
+                ColorDict[i] = Mana.Black;
                 return DarkRitual;
             }
             if (v == "cabal ritual")
             {
-                ColorDict[i] = Color.Black;
+                ColorDict[i] = Mana.Black;
                 return CabalRitual;
             }
-            if (v == "elvish spirit guide" || v == "simian spirit guide")
+            if (v == "elvish spirit guide")
             {
-                ColorDict[i] = Color.RedGreen;
+                ColorDict[i] = Mana.Green;
 
-                return SpiritGuide;
+                return ElvishSpiritGuide;
+            }
+            if (v == "simian spirit guide")
+            {
+                ColorDict[i] = Mana.Red;
+
+                return SimianSpiritGuide;
             }
             if (v == "vault of whispers")
             {
-                ColorDict[i] = Color.None;
+                ColorDict[i] = Mana.None;
 
                 return VaultOfWhispers;
             }
             if (v == "gemstone mine")
             {
-                ColorDict[i] = Color.None;
+                ColorDict[i] = Mana.None;
 
                 return GemstoneMine;
             }
             if (v == "wild cantor")
             {
-                ColorDict[i] = Color.RedGreen;
+                ColorDict[i] = Mana.Red | Mana.Green;// | Mana.Green; TODO FUCK, how do i represent a red green chromemox
 
                 return WildCantor;
             }
             if (v == "lotus petal")
             {
-                ColorDict[i] = Color.None;
+                ColorDict[i] = Mana.None;
 
                 return LotusPetal;
             }
             if (v == "chrome mox")
             {
-                ColorDict[i] = Color.None;
+                ColorDict[i] = Mana.None;
 
                 return ChromeMox;
             }
             if (v == "necrodominance" || v == "necropotence")
             {
-                ColorDict[i] = Color.Black;
+                ColorDict[i] = Mana.Black;
 
                 return Necro;
             }
             if (v == "beseech the mirror")
             {
-                ColorDict[i] = Color.Black;
+                ColorDict[i] = Mana.Black;
 
                 return Beseech;
             }
             if (v == "manamorphose")
             {
-                ColorDict[i] = Color.RedGreen;
+                ColorDict[i] = Mana.Red | Mana.Green;
 
                 return Manamorphose;
             }    
             if (v == "borne upon a wind")
             {
-                ColorDict[i] = Color.Other;
+                ColorDict[i] = Mana.Blue;
 
-                return NoOp;
+                return Borne;
             }
             if (v == "pact of negation")
             {
-                ColorDict[i] = Color.Other;
+                ColorDict[i] = Mana.Blue;
 
                 return NoOp;
             }
             if (v == "tendrils of agony")
             {
-                ColorDict[i] = Color.None; //can't imprint tendrils so i fake it.
+                ColorDict[i] = Mana.None; //can't imprint tendrils so i fake it.
 
                 return NoOp;
             }
             if (v == "valakut awakening" || v == "fateful showdown")
             {
-                ColorDict[i] = Color.RedGreen; 
+                ColorDict[i] = Mana.Red; 
 
                 return NoOp;
             }
             if (v == "summoner's pact")
             {
-                ColorDict[i] = Color.RedGreen; 
+                ColorDict[i] = Mana.Green; 
 
                 return SummonersPact;
             }
             if (v == "brainspoil")
             {
-                ColorDict[i] = Color.Black; 
+                ColorDict[i] = Mana.Black; 
 
                 return BrainSpoil;
             }
 
             if (v == "necrologia")
             {
-                ColorDict[i] = Color.Black;
+                ColorDict[i] = Mana.Black;
 
                 return Necrologia;
             }
 
 
             throw new NotImplementedException();
+        }
+
+        private static IEnumerable<State> Borne(State arg)
+        {
+            if (arg.TimingState == TimingState.InstantOnly)
+            {
+                if (arg.CanPay(Mana.Blue, 1, 1))
+                {
+                    yield return arg.Clone().With(p => p.Win = true);
+                }
+
+            }
         }
 
         private static IEnumerable<State> BrainSpoil(State arg)
@@ -164,7 +185,7 @@ namespace NecroDeck
                 yield break;
             }
 
-            if (arg.BlackMana > 4 && (arg.BlackMana > 5 || arg.RedGreenMana > 0 || arg.OtherMana > 0))
+            if (arg.CanPay(Mana.Black, 5, 1))
             {
                 yield return arg.Clone().With(p => p.Win = true);
             }
@@ -172,10 +193,10 @@ namespace NecroDeck
 
         private static IEnumerable<State> SummonersPact(State arg)
         {
-            yield return arg.Clone().With(p => p.RedGreenMana++);
-            if (arg.RedGreenMana > 0 && Global.ContainsCantor && !arg.RunState.CantorInHand) //TODO if wildcantor is in deck and not it hand
+            yield return arg.Clone().With(p => p.GreenMana++);
+            if (Global.ContainsCantor && !arg.RunState.CantorInHand) //TODO if wildcantor is in deck and not it hand
             {
-                yield return arg.Clone().With(p => { p.RedGreenMana--; p.BlackMana++; });
+                yield return arg.Clone().With(p => { p.Cards.Add(Global.CantorId); p.ModifyRunState(x => x.CantorInHand = true); });
             }
 
             //yield return arg.Clone().With(p => { p.BargainFodder++; }); //but no such card exist
@@ -188,26 +209,34 @@ namespace NecroDeck
 
         private static IEnumerable<State> Manamorphose(State arg)
         {
-            if (arg.RedGreenMana > 1)
+            if (arg.CanPay(Mana.Red | Mana.Green, 1, 1))
             {
-                yield return arg.Clone().With(p => { p.RedGreenMana -= 2; p.BlackMana += 2; });
-                yield return arg.Clone().With(p => { p.RedGreenMana -= 1; p.BlackMana += 1; });
-            }
-            if (arg.RedGreenMana > 0)
-            {
-                if (arg.OtherMana > 0)
+                foreach (var x in arg.WaysToPay(Mana.Red | Mana.Green, 1, 1))
                 {
-                    yield return arg.Clone().With(p => { p.BlackMana += 2; p.OtherMana--; p.RedGreenMana--; });
-                    yield return arg.Clone().With(p => { p.BlackMana += 1; p.OtherMana--; });
+                    yield return x.With(p => p.AnyMana += 2);
                 }
+            }
+
+            //if (arg.RedGreenMana > 1)
+            //{
+            //    yield return arg.Clone().With(p => { p.RedGreenMana -= 2; p.BlackMana += 2; });
+            //    yield return arg.Clone().With(p => { p.RedGreenMana -= 1; p.BlackMana += 1; });
+            //}
+            //if (arg.RedGreenMana > 0)
+            //{
+            //    if (arg.BlueMana > 0)
+            //    {
+            //        yield return arg.Clone().With(p => { p.BlackMana += 2; p.BlueMana--; p.RedGreenMana--; });
+            //        yield return arg.Clone().With(p => { p.BlackMana += 1; p.BlueMana--; });
+            //    }
                
-                if (arg.BlackMana > 0)
-                {
-                    yield return arg.Clone().With(p => { p.BlackMana += 1; p.RedGreenMana--; });
+            //    if (arg.BlackMana > 0)
+            //    {
+            //        yield return arg.Clone().With(p => { p.BlackMana += 1; p.RedGreenMana--; });
 
-                }
+            //    }
 
-            }
+            //}
         }
 
         private static IEnumerable<State> Beseech(State arg)
@@ -217,11 +246,11 @@ namespace NecroDeck
                 yield break;
             }
 
-            if (arg.BlackMana > 5 && (arg.BlackMana > 6 ||arg.OtherMana > 0 || arg.RedGreenMana > 0))
+            if (arg.CanPay(Mana.Black, 6, 1))
             {
                 yield return arg.Clone().With(p => p.Win = true);
             }
-            if (arg.BargainFodder > 0 && arg.BlackMana > 2 && (arg.BlackMana > 3 || arg.OtherMana > 0 || arg.RedGreenMana > 0))
+            if (arg.BargainFodder > 0 && arg.CanPay(Mana.Black, 3, 1))
             {
                 yield return arg.Clone().With(p => p.Win = true);
             }
@@ -234,9 +263,20 @@ namespace NecroDeck
                 yield break;
             }
 
-            if (arg.BlackMana > 2)
+            if (arg.CanPay(Mana.Black, 3))
             {
-                yield return arg.Clone().With(p => p.Win = true);
+                if (Global.RunPostNecro)
+                {
+                    yield return arg.Clone().With(p =>
+                    {
+                        p.TimingState = TimingState.InstantOnly;
+                        p.DrawCards(19);
+                    });
+                }
+                else
+                {
+                    yield return arg.Clone().With(p => p.Win = true);
+                }
             }
         }
 
@@ -247,7 +287,7 @@ namespace NecroDeck
                 yield break;
             }
 
-            if (arg.BlackMana > 1 && (arg.SumMana > 4))
+            if (arg.CanPay(Mana.Black, 2, 3))
             {
                 yield return arg.Clone().With(p => p.Win = true);
             }
@@ -263,17 +303,21 @@ namespace NecroDeck
             foreach (var x in arg.Cards)
             {
                 var color = ColorDict[x];
-                if (color == Color.Black)
+                if (color.HasFlag(Mana.Black))
                 {
                     yield return arg.Clone().With(p => { p.BlackMana++; p.BargainFodder++; p.RemoveCard(x); });
                 }
-                if (color == Color.RedGreen)
+                if (color.HasFlag(Mana.Red))
                 {
-                    yield return arg.Clone().With(p => { p.RedGreenMana++; p.BargainFodder++; p.RemoveCard(x);  });
+                    yield return arg.Clone().With(p => { p.RedMana++; p.BargainFodder++; p.RemoveCard(x);  });
                 }
-                if (color == Color.Other)
+                if (color.HasFlag(Mana.Green))
                 {
-                    yield return arg.Clone().With(p => { p.OtherMana++; p.BargainFodder++; p.RemoveCard(x); });
+                    yield return arg.Clone().With(p => { p.GreenMana++; p.BargainFodder++; p.RemoveCard(x); });
+                }
+                if (color.HasFlag(Mana.Blue))
+                {
+                    yield return arg.Clone().With(p => { p.BlueMana++; p.BargainFodder++; p.RemoveCard(x); });
                 }
             }
 
@@ -289,9 +333,8 @@ namespace NecroDeck
                 yield break;
             }
 
-            yield return arg.Clone().With(p => p.BlackMana++);
+            yield return arg.Clone().With(p => p.AnyMana++);
             yield return arg.Clone().With(p => p.BargainFodder++);
-            yield return arg.Clone().With(p => p.RedGreenMana++);
 
         }
 
@@ -302,8 +345,13 @@ namespace NecroDeck
                 yield break;
             }
 
-            if (arg.RedGreenMana > 0)
-                yield return arg.Clone().With(p => { p.BlackMana += 1; p.RedGreenMana--; });
+            if (arg.CanPay(Mana.Red |Mana.Green, 1))
+            {
+                foreach (var x in arg.WaysToPay(Mana.Red | Mana.Green, 1))
+                {
+                    yield return x.With(p => p.AnyMana += 1);
+                }
+            }
         }
 
         private static IEnumerable<State> GemstoneMine(State arg)
@@ -314,8 +362,8 @@ namespace NecroDeck
             }
             if (arg.LandDrops == 0)
             {
-                yield return arg.Clone().With(p => { p.BlackMana += 1; p.LandDrops++; });
-                yield return arg.Clone().With(p => { p.RedGreenMana += 1; p.LandDrops++; });
+                yield return arg.Clone().With(p => { p.AnyMana += 1; p.LandDrops++; });
+                //yield return arg.Clone().With(p => { p.RedGreenMana += 1; p.LandDrops++; });
             }
         }
         private static IEnumerable<State> FlipLand(State arg)
@@ -343,37 +391,53 @@ namespace NecroDeck
 
         }
 
-        private static IEnumerable<State> SpiritGuide(State arg)
+        private static IEnumerable<State> ElvishSpiritGuide(State arg)
         {
-            yield return arg.Clone().With(p => p.RedGreenMana++);
+            yield return arg.Clone().With(p => p.GreenMana++);
+        }
+        private static IEnumerable<State> SimianSpiritGuide(State arg)
+        {
+            yield return arg.Clone().With(p => p.RedMana++);
         }
 
         private static IEnumerable<State> CabalRitual(State arg)
         {
-            if (arg.BlackMana > 0)
+            if (arg.CanPay(Mana.Black, 1, 1))
             {
-                if (arg.OtherMana > 0)
+
+                foreach (var x in arg.WaysToPay(Mana.Black, 1, 1))
                 {
-                    yield return arg.Clone().With(p => { p.BlackMana += 2; p.OtherMana--; });
+                    yield return x.With(p => p.BlackMana += 3);
                 }
-                if (arg.RedGreenMana > 0)
-                {
-                    yield return arg.Clone().With(p => { p.BlackMana += 2; p.RedGreenMana--; });
-                }
-                if (arg.BlackMana > 1)
-                {
-                    yield return arg.Clone().With(p => p.BlackMana += 1);
-                }
+
+                //var clone = arg.Clone().With(p => p.Pay(Mana.Black, 1));
+                //if (clone.BlueMana > 0)
+                //{
+                //    yield return arg.Clone().With(p => { p.BlackMana += 2; p.BlueMana--; });
+                //}
+                //if (clone.RedMana > 0)
+                //{
+                //    yield return arg.Clone().With(p => { p.BlackMana += 2; p.RedGreenMana--; });
+                //}
+                //if (clone.GreenMana > 0)
+                //{
+                //    yield return arg.Clone().With(p => { p.BlackMana += 2; p.RedGreenMana--; });
+                //}
+                //if (clone.BlackMana > 1)
+                //{
+                //    yield return arg.Clone().With(p => p.BlackMana += 1);
+                //}
 
             }
         }
 
         private static IEnumerable<State> DarkRitual(State arg)
         {
-            if (arg.BlackMana > 0)
+            if (arg.CanPay(Mana.Black, 1))
             {
-                yield return arg.Clone().With(p => p.BlackMana += 2);
+                return arg.Pay(Mana.Black, 1).Select(q => q.With(p => p.BlackMana += 3));
             }
+            return Enumerable.Empty<State>();
         }
 
         internal static IEnumerable<State> GetResult(int card1, State state)
@@ -381,4 +445,14 @@ namespace NecroDeck
             return RuleDict[card1](state);
         }
     }
+}
+[Flags]
+enum Mana
+{
+    Black = 1,
+    Red = 2,
+    Green = 4,
+    Blue = 8,
+    None = 16
+
 }

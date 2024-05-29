@@ -16,14 +16,20 @@ namespace NecroDeck
         {
             r = new Random(seed);
             int mulligans = 0;
-            takeMulligan:
+        takeMulligan:
             var start = new State();
-            var hand = Get7Unique(deck);
-            start.Cards = hand;
             start.RunState = new RunState
             {
-                CantorInHand = start.Cards.Contains(Global.CantorId)
+                Random = r,
             };
+            start.Cards = new List<int>();
+            start.DrawCards(7);
+
+            start.RunState.CantorInHand = start.Cards.Contains(Global.CantorId);
+
+            //var hand = Get7Unique(deck);
+            //start.Cards = hand;
+           
 
             bool containsPact = start.ContainsCards("pact of negation");
 
@@ -46,7 +52,7 @@ namespace NecroDeck
                 {
                     if (x.RunState.CantorInHand)
                     {
-                        x.RunState.CantorInHand = x.Cards.Contains(Global.CantorId); //might have mulliganed it away
+                        x.ModifyRunState((st) => st.CantorInHand = x.Cards.Contains(Global.CantorId));//might have mulliganed it away
                     }
                     open.Enqueue(x);
                 }

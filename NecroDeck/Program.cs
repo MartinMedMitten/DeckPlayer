@@ -18,7 +18,7 @@ namespace NecroDeck
 
         static void Main(string[] args)
         {
-            Global.DebugOutput = true;
+            Global.DebugOutput = false;
 
             RegularRun();
 
@@ -72,7 +72,7 @@ namespace NecroDeck
             stopWatch.Start();
             var runner = new DeckPlayer();
             var runResults = new List<RunResult>();
-
+            List<int> losses = new List<int>();
             for (int i = 0; i < (Global.DebugOutput ? 100 : 10000); i++)
             {
                 if (Global.DebugOutput)
@@ -99,6 +99,7 @@ namespace NecroDeck
                 {
                     if (Global.DebugOutput)
                         Console.WriteLine("loss");
+                    losses.Add(i);
                 }
             }
             stopWatch.Stop();
@@ -109,6 +110,7 @@ namespace NecroDeck
 
             Console.WriteLine("wins " + wins);
             Console.WriteLine("Protected wins " + prot);
+            Console.WriteLine("Lossed " + string.Join(", ", losses));
             return wins;
         }
 
