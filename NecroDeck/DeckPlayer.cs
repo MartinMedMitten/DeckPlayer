@@ -25,7 +25,7 @@ namespace NecroDeck
                 CantorInHand = start.Cards.Contains(Global.CantorId)
             };
 
-            bool containsPact = start.ContainsCards("PactOfNegation");
+            bool containsPact = start.ContainsCards("pact of negation");
 
             if (Global.DebugOutput)
             {
@@ -56,6 +56,8 @@ namespace NecroDeck
             while (open.Any())
             {
                 var s = open.Dequeue();
+                
+
                 //if (s.ContainsCards("Necro,CabalRitual,VaultOfWhispers,SpiritGuide"))
                 //{
 

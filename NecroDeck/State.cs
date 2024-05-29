@@ -9,6 +9,14 @@ namespace NecroDeck
     {
         public bool CantorInHand { get; set; }
     }
+
+    enum TimingState
+    {
+        MainPhase,
+        InstantOnly,
+        Borne
+    }
+
     class State
     {
         public List<int> Cards;
@@ -33,11 +41,14 @@ namespace NecroDeck
 
         public int CardsInHand => Cards.Count;
 
+        public int SumMana => BlackMana + RedGreenMana + OtherMana;
+
         public int BlackMana = 0;
         public int RedGreenMana = 0;
         public int OtherMana = 0;
         public int LandDrops = 0;
         public int BargainFodder = 0;
+        public TimingState TimingState;
         public bool Win;
 
         public State Clone()
@@ -51,7 +62,8 @@ namespace NecroDeck
                 OtherMana = OtherMana,
                 LandDrops = LandDrops,
                 BargainFodder = BargainFodder,
-                Win = Win
+                Win = Win,
+                TimingState = TimingState
             };
         }
 
@@ -65,6 +77,7 @@ namespace NecroDeck
                        OtherMana == other.OtherMana &&
                        LandDrops == other.LandDrops &&
                        BargainFodder == other.BargainFodder &&
+                       TimingState == other.TimingState &&
                        CardCompare(other) &&
                        Win == other.Win;
             }

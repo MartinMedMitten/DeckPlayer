@@ -45,112 +45,125 @@ namespace NecroDeck
 
         private static Func<State, IEnumerable<State>> GetFunc(string v, int i)
         {
-            if (v == "DarkRitual")
+            if (v == "dark ritual")
             {
                 ColorDict[i] = Color.Black;
                 return DarkRitual;
             }
-            if (v == "CabalRitual")
+            if (v == "cabal ritual")
             {
                 ColorDict[i] = Color.Black;
                 return CabalRitual;
             }
-            if (v == "SpiritGuide")
+            if (v == "elvish spirit guide" || v == "simian spirit guide")
             {
                 ColorDict[i] = Color.RedGreen;
 
                 return SpiritGuide;
             }
-            if (v == "VaultOfWhispers")
+            if (v == "vault of whispers")
             {
                 ColorDict[i] = Color.None;
 
                 return VaultOfWhispers;
             }
-            if (v == "GemstoneMine")
+            if (v == "gemstone mine")
             {
                 ColorDict[i] = Color.None;
 
                 return GemstoneMine;
             }
-            if (v == "WildCantor")
+            if (v == "wild cantor")
             {
                 ColorDict[i] = Color.RedGreen;
 
                 return WildCantor;
             }
-            if (v == "LotusPetal")
+            if (v == "lotus petal")
             {
                 ColorDict[i] = Color.None;
 
                 return LotusPetal;
             }
-            if (v == "ChromeMox")
+            if (v == "chrome mox")
             {
                 ColorDict[i] = Color.None;
 
                 return ChromeMox;
             }
-            if (v == "Necro")
+            if (v == "necrodominance" || v == "necropotence")
             {
                 ColorDict[i] = Color.Black;
 
                 return Necro;
             }
-            if (v == "Beseech")
+            if (v == "beseech the mirror")
             {
                 ColorDict[i] = Color.Black;
 
                 return Beseech;
             }
-            if (v == "Manamorphose")
+            if (v == "manamorphose")
             {
                 ColorDict[i] = Color.RedGreen;
 
                 return Manamorphose;
             }    
-            if (v == "Borne")
+            if (v == "borne upon a wind")
             {
                 ColorDict[i] = Color.Other;
 
                 return NoOp;
             }
-            if (v == "PactofNegation")
+            if (v == "pact of negation")
             {
                 ColorDict[i] = Color.Other;
 
                 return NoOp;
             }
-            if (v == "Tendrils")
+            if (v == "tendrils of agony")
             {
                 ColorDict[i] = Color.None; //can't imprint tendrils so i fake it.
 
                 return NoOp;
             }
-            if (v == "Valakut")
+            if (v == "valakut awakening" || v == "fateful showdown")
             {
                 ColorDict[i] = Color.RedGreen; 
 
                 return NoOp;
             }
-            if (v == "SummonersPact")
+            if (v == "summoner's pact")
             {
                 ColorDict[i] = Color.RedGreen; 
 
                 return SummonersPact;
             }
-            if (v == "BrainSpoil")
+            if (v == "brainspoil")
             {
                 ColorDict[i] = Color.Black; 
 
                 return BrainSpoil;
             }
 
+            if (v == "necrologia")
+            {
+                ColorDict[i] = Color.Black;
+
+                return Necrologia;
+            }
+
+
             throw new NotImplementedException();
         }
 
         private static IEnumerable<State> BrainSpoil(State arg)
         {
+            if (arg.TimingState == TimingState.InstantOnly)
+            {
+                yield break;
+            }
+
             if (arg.BlackMana > 4 && (arg.BlackMana > 5 || arg.RedGreenMana > 0 || arg.OtherMana > 0))
             {
                 yield return arg.Clone().With(p => p.Win = true);
@@ -199,6 +212,11 @@ namespace NecroDeck
 
         private static IEnumerable<State> Beseech(State arg)
         {
+            if (arg.TimingState != TimingState.MainPhase) //don't seem necessary to cast necro post necro
+            {
+                yield break;
+            }
+
             if (arg.BlackMana > 5 && (arg.BlackMana > 6 ||arg.OtherMana > 0 || arg.RedGreenMana > 0))
             {
                 yield return arg.Clone().With(p => p.Win = true);
@@ -211,7 +229,25 @@ namespace NecroDeck
 
         private static IEnumerable<State> Necro(State arg)
         {
+            if (arg.TimingState != TimingState.MainPhase)
+            {
+                yield break;
+            }
+
             if (arg.BlackMana > 2)
+            {
+                yield return arg.Clone().With(p => p.Win = true);
+            }
+        }
+
+        private static IEnumerable<State> Necrologia(State arg)
+        {
+            if (arg.TimingState != TimingState.MainPhase)
+            {
+                yield break;
+            }
+
+            if (arg.BlackMana > 1 && (arg.SumMana > 4))
             {
                 yield return arg.Clone().With(p => p.Win = true);
             }
@@ -219,6 +255,11 @@ namespace NecroDeck
 
         private static IEnumerable<State> ChromeMox(State arg)
         {
+            if (arg.TimingState == TimingState.InstantOnly)
+            {
+                yield break;
+            }
+
             foreach (var x in arg.Cards)
             {
                 var color = ColorDict[x];
@@ -243,6 +284,11 @@ namespace NecroDeck
 
         private static IEnumerable<State> LotusPetal(State arg)
         {
+            if (arg.TimingState == TimingState.InstantOnly)
+            {
+                yield break;
+            }
+
             yield return arg.Clone().With(p => p.BlackMana++);
             yield return arg.Clone().With(p => p.BargainFodder++);
             yield return arg.Clone().With(p => p.RedGreenMana++);
@@ -251,12 +297,21 @@ namespace NecroDeck
 
         private static IEnumerable<State> WildCantor(State arg)
         {
+            if (arg.TimingState == TimingState.InstantOnly)
+            {
+                yield break;
+            }
+
             if (arg.RedGreenMana > 0)
                 yield return arg.Clone().With(p => { p.BlackMana += 1; p.RedGreenMana--; });
         }
 
         private static IEnumerable<State> GemstoneMine(State arg)
         {
+            if (arg.TimingState != TimingState.MainPhase)
+            {
+                yield break;
+            }
             if (arg.LandDrops == 0)
             {
                 yield return arg.Clone().With(p => { p.BlackMana += 1; p.LandDrops++; });
@@ -265,6 +320,11 @@ namespace NecroDeck
         }
         private static IEnumerable<State> FlipLand(State arg)
         {
+            if (arg.TimingState == TimingState.InstantOnly)
+            {
+                yield break;
+            }
+
             if (arg.LandDrops == 0)
             {
                 yield return arg.Clone().With(p => { p.BlackMana += 1; p.LandDrops++; });
@@ -273,6 +333,11 @@ namespace NecroDeck
 
         private static IEnumerable<State> VaultOfWhispers(State arg)
         {
+            if (arg.TimingState == TimingState.InstantOnly)
+            {
+                yield break;
+            }
+
             if (arg.LandDrops == 0)
                 yield return arg.Clone().With(p => { p.BlackMana += 1; p.LandDrops++; p.BargainFodder++; });
 

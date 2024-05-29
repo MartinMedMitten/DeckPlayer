@@ -7,13 +7,64 @@ using System.Threading.Tasks;
 
 namespace NecroDeck
 {
+    class CutStats
+    {
+        public string Name { get; set; }
+        public int Wins { get; set; }
+    }
+
     class Program
     {
 
         static void Main(string[] args)
         {
-            Global.DebugOutput = false;
+            Global.DebugOutput = true;
+
+            RegularRun();
+
+        }
+
+        private static void RegularRun()
+        {
             Global.Deck = new Deck();
+
+            Run();
+
+            Console.ReadKey();
+        }
+        private static void CutRun()
+        {
+            Global.Deck = new Deck();
+            List<CutStats> cutStats = new List<CutStats>();
+            var cuttables = Global.Deck.Cards.Distinct().Except(new[] { "Tendrils", "PactofNegation" }).ToList();
+            foreach (var x in cuttables)
+            {
+                var firstIndexOf = Global.Deck.Cards.IndexOf(x);
+                Global.Deck.Cards.RemoveAt(firstIndexOf);
+                if (x == "WildCantor")
+                {
+                    Global.ContainsCantor = false;
+                }
+                cutStats.Add(new CutStats
+                {
+                    Name = x,
+                    Wins = Run()
+                });
+
+                Global.Deck = new Deck();
+            }
+
+            foreach (var x in cutStats.OrderByDescending(p => p.Wins))
+            {
+                Console.WriteLine(x.Name + ": " + x.Wins);
+            }
+
+            Console.ReadKey();
+        }
+
+        private static int Run()
+        {
+            
             var deck = Global.Deck;
             Console.WriteLine(Global.Deck.Cards.Count + " card deck");
             Rules.InitRuleDict(deck);
@@ -58,11 +109,8 @@ namespace NecroDeck
 
             Console.WriteLine("wins " + wins);
             Console.WriteLine("Protected wins " + prot);
-
-            Console.ReadKey();
-
+            return wins;
         }
-
 
 
     }

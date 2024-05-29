@@ -9,11 +9,28 @@ namespace NecroDeck
         public List<string> Cards { get; set; }
         public Deck()
         {
-            Cards = File.ReadAllLines("decklist.txt").ToList();
-            if (Cards.Contains("WildCantor"))
+            var tmp = File.ReadAllLines("decklist.txt").ToList();
+            Cards = new List<string>();
+            foreach (var x in tmp)
+            {
+                var ss = x.Split(' ');
+                var num = int.Parse(ss[0][0].ToString());
+                var name = string.Join(" ", ss.Skip(1)).Trim().ToLower();
+                for (int i = 0; i < num; i++)
+                {
+                    Cards.Add(name);
+                }
+            }
+
+
+            if (Cards.Contains("wild cantor"))
             {
                 Global.ContainsCantor = true;
-                Global.CantorId = Cards.IndexOf("WildCantor");
+                Global.CantorId = Cards.IndexOf("wild cantor");
+            }
+            else
+            {
+                Global.ContainsCantor = false;
             }
         }
     }

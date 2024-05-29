@@ -1,61 +1,17 @@
-DarkRitual
-DarkRitual
-DarkRitual
-DarkRitual
-CabalRitual
-CabalRitual
-CabalRitual
-CabalRitual
-SpiritGuide
-SpiritGuide
-SpiritGuide
-SpiritGuide
-SpiritGuide
-SpiritGuide
-SpiritGuide
-SpiritGuide
-VaultOfWhispers
-VaultOfWhispers
-VaultOfWhispers
-VaultOfWhispers
-GemstoneMine
-GemstoneMine
-GemstoneMine
-GemstoneMine
-Valakut
-Valakut
-Valakut
-WildCantor
-LotusPetal
-LotusPetal
-LotusPetal
-LotusPetal
-ChromeMox
-ChromeMox
-ChromeMox
-ChromeMox
-Necro
-Necro
-Necro
-Necro
-Beseech
-Beseech
-Beseech
-Beseech
-Manamorphose
-Manamorphose
-Manamorphose
-Manamorphose
-Borne
-Borne
-Borne
-Borne
-SummonersPact
-SummonersPact
-SummonersPact
-SummonersPact
-Tendrils
-PactofNegation
-PactofNegation
-PactofNegation
-PactofNegation
+4x Beseech the Mirror
+4x Necrologia
+4x Cabal Ritual
+2x Chrome Mox
+4x Dark Ritual
+4x Elvish Spirit Guide
+4x Gemstone Mine
+4x Lotus Petal
+3x Manamorphose
+4x Necropotence
+4x Pact of Negation
+4x Simian Spirit Guide
+4x Summoner's Pact
+2x Valakut Awakening
+4x Fateful showdown
+4x Vault of Whispers
+1x Wild Cantor
