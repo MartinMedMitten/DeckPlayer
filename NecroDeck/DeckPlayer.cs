@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace NecroDeck
@@ -9,6 +10,11 @@ namespace NecroDeck
         public bool Win { get; set; }
         public int Mulligans { get; set; }
         public bool Protected { get; set; }
+        public bool Inconclusive { get; internal set; }
+        public bool BorneLoss { get; internal set; }
+        public int Index { get; internal set; }
+        internal State State { get; set; }
+        internal State NecroState { get; set; }
     }
     public class DeckPlayer
     {
@@ -17,13 +23,21 @@ namespace NecroDeck
             r = new Random(seed);
             int mulligans = 0;
         takeMulligan:
-            var start = new State();
+            var stopWatch = new Stopwatch();
+            stopWatch.Start();
+            var start = new State()
+            {
+                TimingState = TimingState.MainPhase
+            };
             start.RunState = new RunState
             {
                 Random = r,
             };
             start.Cards = new List<int>();
             start.DrawCards(7);
+            bool canMulligan = true;
+            State postNecroState = null;
+            bool gotBorne = false;
 
             start.RunState.CantorInHand = start.Cards.Contains(Global.CantorId);
 
@@ -37,8 +51,8 @@ namespace NecroDeck
             {
                 start.Print();
             }
-            
-            Queue<State> open = new Queue<State>();
+
+            StructureWrapper<State> open = new QueueWrapper<State>();
             HashSet<State> closed = new HashSet<State>();
 
             if (mulligans == 0)
@@ -62,7 +76,23 @@ namespace NecroDeck
             while (open.Any())
             {
                 var s = open.Dequeue();
-                
+              
+                if (stopWatch.ElapsedMilliseconds > 5000)
+                {
+                    if (Global.DebugOutput)
+                    {
+                        Console.WriteLine("timeout");
+                    }
+
+                    return new RunResult
+                    {
+                        
+                        Mulligans = mulligans,
+                        Protected = false,
+                        Win = false,
+                        Inconclusive = true,
+                    };
+                }
 
                 //if (s.ContainsCards("Necro,CabalRitual,VaultOfWhispers,SpiritGuide"))
                 //{
@@ -80,18 +110,49 @@ namespace NecroDeck
                             {
                                 Win = true,
                                 Mulligans = mulligans,
-                                Protected = containsPact && x.CardsInHand > 0
+                                Protected = containsPact && x.CardsInHand > 0,
+                                State = x,
+                                NecroState = postNecroState
                             };
                         }
+                        if (s.TimingState == TimingState.Borne)
+                        {
+                            gotBorne = true;
+                        }
+                        if (s.TimingState == TimingState.MainPhase && x.TimingState == TimingState.InstantOnly)
+                        {
+                            open = new StackWrapper<State>();
+                            //open.Clear();
+                            x.BlackMana = 0;
+                            open.Enqueue(x);
+                         
+                            postNecroState = x;
+                            canMulligan = false;
+                            break;
+                        }
+
                         open.Enqueue(x);
                     }
                 }
 
             }
-            if (mulligans < 4) //cant win on 5 mulligans
+            if (mulligans < 4 && canMulligan) //cant win on 5 mulligans
             {
                 mulligans++;
                 goto takeMulligan; //sue me
+            }
+            if (postNecroState != null)
+            {
+                return new RunResult
+                {
+                    State = postNecroState,
+                    Win = false,
+                    BorneLoss = gotBorne,
+                    Mulligans = mulligans,
+                    NecroState = postNecroState
+
+                };
+
             }
             return new RunResult();
         }

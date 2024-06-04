@@ -59,11 +59,25 @@ namespace NecroDeck
            
             Console.WriteLine(sb.ToString());
         }
+        public string PrintMana()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append(new string('B', BlackMana));
+            sb.Append(new string('R', RedMana));
+            sb.Append(new string('G', GreenMana));
+            sb.Append(new string('U', BlueMana));
+            sb.Append(new string('*', AnyMana));
+
+            return sb.ToString();
+        }
 
         public int CardsInHand => Cards.Count;
 
         public int TotalMana => BlackMana + BlueMana + AnyMana + RedMana + GreenMana;
 
+        public State Parent { get; private set; }
+
+        public int LedInPlay = 0;
         public int AnyMana = 0;
         public int BlackMana = 0;
         public int RedMana = 0;
@@ -78,6 +92,7 @@ namespace NecroDeck
         {
             return new State
             {
+                LedInPlay = LedInPlay,
                 RunState = RunState,
                 Cards = new List<int>(Cards),
                 BlackMana = BlackMana,
@@ -88,7 +103,8 @@ namespace NecroDeck
                 LandDrops = LandDrops,
                 BargainFodder = BargainFodder,
                 Win = Win,
-                TimingState = TimingState
+                TimingState = TimingState,
+                Parent = this
             };
         }
 
@@ -106,7 +122,8 @@ namespace NecroDeck
                        BargainFodder == other.BargainFodder &&
                        TimingState == other.TimingState &&
                        CardCompare(other) &&
-                       Win == other.Win;
+                       Win == other.Win &&
+                       LedInPlay == other.LedInPlay;
             }
             return false;
         }
@@ -168,9 +185,12 @@ namespace NecroDeck
 
             var newRunState = RunState.Clone();
             var c = newRunState.DrawnCards.Count;
-
             while (newRunState.DrawnCards.Count - c < v)
             {
+                if (newRunState.DrawnCards.Count >= max)
+                {
+                    break;
+                }
                 int number = newRunState.Random.Next(0, max);
                 newRunState.DrawnCards.Add(number);
             }
@@ -189,8 +209,9 @@ namespace NecroDeck
                 {
                     clone.AnyMana += clone.BlackMana;
                     clone.BlackMana = 0;
+                  
                 }
-                yield return clone;
+                if (clone.AnyMana >= 0) yield return clone;
             }
             if (color.HasFlag(Mana.Blue))
             {
@@ -200,8 +221,9 @@ namespace NecroDeck
                 {
                     clone.AnyMana += clone.BlueMana;
                     clone.BlueMana = 0;
+                   
                 }
-                yield return clone;
+                if (clone.AnyMana >= 0) yield return clone;
             }
             if (color.HasFlag(Mana.Red))
             {
@@ -211,8 +233,10 @@ namespace NecroDeck
                 {
                     clone.AnyMana += clone.RedMana;
                     clone.RedMana = 0;
+                 
                 }
-                yield return clone;
+                if (clone.AnyMana >= 0)
+                    yield return clone;
             }
             if (color.HasFlag(Mana.Green))
             {
@@ -222,8 +246,10 @@ namespace NecroDeck
                 {
                     clone.AnyMana += clone.GreenMana;
                     clone.GreenMana = 0;
+                 
                 }
-                yield return clone;
+                if (clone.AnyMana >= 0)
+                    yield return clone;
             }
         }
 

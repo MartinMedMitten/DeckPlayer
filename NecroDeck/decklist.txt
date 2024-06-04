@@ -1,17 +1,17 @@
-4 Lotus Petal
-4 Chrome Mox
-4 Elvish Spirit Guide
-4 Simian Spirit Guide
-1 Wild Cantor
-4 Necropotence
-4 Manamorphose
-4 Cabal Ritual
-3 Valakut Awakening
-4 Summoner's Pact
-4 Dark Ritual
-3 Borne Upon a Wind
-4 pact of negation
-4 Vault of Whispers
-4 Gemstone Mine
-4 Beseech the Mirror
-1 Tendrils of Agony 
+4x Beseech the Mirror
+4x Borne Upon a Wind
+4x Cabal Ritual
+3x Chrome Mox
+4x Dark Ritual
+4x Elvish Spirit Guide
+1x Wild Cantor
+4x Gemstone Mine
+4x Lotus Petal
+4x Manamorphose
+4x valakut awakening
+4x Necropotence
+3x Pact of Negation
+4x Simian Spirit Guide
+4x Summoner's Pact
+1x Tendrils of Agony
+4x Vault of Whispers
