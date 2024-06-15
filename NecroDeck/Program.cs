@@ -18,9 +18,10 @@ namespace NecroDeck
 
         static void Main(string[] args)
         {
+            Global.DebugRunCount = 10;
+            Global.RegularRunCount = 1000;
             Global.DebugOutput = false;
             Global.RunPostNecro = true;
-
             RegularRun();
 
         }
@@ -29,7 +30,7 @@ namespace NecroDeck
         {
             Global.Deck = new Deck();
 
-            Run();
+            Run(false);
 
             Console.ReadKey();
         }
@@ -37,19 +38,19 @@ namespace NecroDeck
         {
             Global.Deck = new Deck();
             List<CutStats> cutStats = new List<CutStats>();
-            var cuttables = Global.Deck.Cards.Distinct().Except(new[] { "Tendrils", "PactofNegation" }).ToList();
+            var cuttables = Global.Deck.Cards.Distinct().Except(new[] { "tendrils of agony", "borne upon a wind", "big score", "necropotence", "dark ritual", "lotus petal" }).ToList();
             foreach (var x in cuttables)
             {
                 var firstIndexOf = Global.Deck.Cards.IndexOf(x);
                 Global.Deck.Cards.RemoveAt(firstIndexOf);
-                if (x == "WildCantor")
+                if (x == "wild cantor")
                 {
                     Global.ContainsCantor = false;
                 }
                 cutStats.Add(new CutStats
                 {
                     Name = x,
-                    Wins = Run()
+                    Wins = Run(true)
                 });
 
                 Global.Deck = new Deck();
@@ -63,7 +64,7 @@ namespace NecroDeck
             Console.ReadKey();
         }
 
-        private static int Run()
+        private static int Run(bool cutrun)
         {
             
             var deck = Global.Deck;
@@ -73,12 +74,12 @@ namespace NecroDeck
             stopWatch.Start();
             var runner = new DeckPlayer();
             var runResults = new List<RunResult>();
-            List<int> losses = new List<int>();
-            for (int i = 0; i < (Global.DebugOutput ? 10 : 1000); i++)
+            var losses = new List<int>();
+            for (int i = 0; i < Global.Runs; i++)
             {
                 if (Global.DebugOutput)
                 {
-                    if (i == 6)
+                    if (i == 5)
                     {
 
                     }
@@ -86,23 +87,20 @@ namespace NecroDeck
                 }
                 else
                 {
-                    if (i % 100 == 0)
+                    if (i % Global.CounterInterval == 0)
                     {
                         Console.WriteLine(i);
                     }
                 }
                 var seed = Global.DebugOutput ? i : Global.R.Next(0, Int32.MaxValue);
-                var rr = runner.Run(deck, seed);
-                rr.Index = i;
-                runResults.Add(rr);
+                var run = runner.Run(deck, seed);
+                run.Index = i;
+                runResults.Add(run);
 
-
-                if (rr.Win)
+                if (run.Win)
                 {
                     if (Global.DebugOutput)
                         Console.WriteLine("WIN");
-
-
                 }
                 else
                 {
@@ -112,12 +110,12 @@ namespace NecroDeck
                 }
             }
             stopWatch.Stop();
-            int wins = runResults.Where(p => p.Win).Count();
-            int prot = runResults.Where(p => p.Protected).Count();
-            int inconclusive = runResults.Where(p => p.Inconclusive).Count();
-            int gotNecro = runResults.Where(p => p.State?.TimingState == TimingState.InstantOnly).Count();
-            int gotBourne = runResults.Where(p => p.State?.TimingState == TimingState.Borne).Count();
-            int gotBorneFizzled = runResults.Where(p => p.BorneLoss).Count();
+            var wins = runResults.Where(p => p.Win).Count();
+            var prot = runResults.Where(p => p.Protected).Count();
+            var inconclusive = runResults.Where(p => p.Inconclusive).Count();
+            var gotNecro = runResults.Where(p => p.GotNecro).Count();
+            var gotBourne = runResults.Where(p => p.State?.TimingState == TimingState.Borne).Count();
+            var gotBorneFizzled = runResults.Where(p => p.BorneLoss).Count();
 
             Console.WriteLine(stopWatch.ElapsedMilliseconds + " ms");
 
@@ -125,9 +123,13 @@ namespace NecroDeck
             Console.WriteLine("Protected wins " + prot);
             Console.WriteLine("Inconclusive " + inconclusive);
             Console.WriteLine("Got necro" + gotNecro);
+            Console.WriteLine("Lost with necro" + (wins - gotNecro));
             Console.WriteLine("Got borne" + gotBourne);
             Console.WriteLine("Borne fizzled" + gotBorneFizzled);
-
+            if (cutrun)
+            {
+                return wins;
+            }
             while (true)
             {
                 var inp = Console.ReadLine();
@@ -136,9 +138,17 @@ namespace NecroDeck
                     if (inp.StartsWith("show "))
                     {
                         var spl = inp.Split(' ');
-                        var index = Int32.Parse(spl[1]);
+                        var index = int.Parse(spl[1]);
                         Show(runResults[index]);
                     }
+
+                    if (inp.StartsWith("inconclusive"))
+                    {
+                        var r = runResults.Where(q => q.Inconclusive).ToList();
+                        Console.WriteLine($"Found {r.Count()} games");
+                        Console.WriteLine(string.Join(", ", r.Select(p => p.Index)));
+                    }
+
                     if (inp.StartsWith("findloss "))
                     {
                         var spl = inp.Split(' ');
@@ -167,7 +177,7 @@ namespace NecroDeck
 
                         foreach (var x in cc.OrderBy(p => p.Value))
                         {
-                            Console.WriteLine(x.Key + "\t\t:" + x.Value + "   -   " + ((decimal)x.Value)/(decimal)r.Count);
+                            Console.WriteLine(x.Key + "\t\t:" + x.Value + "   -   " + x.Value / (decimal)r.Count);
                         }
 
                     }
@@ -179,7 +189,6 @@ namespace NecroDeck
             }
 
 
-            //Console.WriteLine("Lossed " + string.Join(", ", losses));
             return wins;
         }
 

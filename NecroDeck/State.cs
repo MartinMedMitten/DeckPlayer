@@ -30,11 +30,99 @@ namespace NecroDeck
         InstantOnly,
         Borne
     }
+    class CardInPlay
+    {
+        public int Card;
+        public bool Used;
+        public object AdditionalData;
 
+        public CardInPlay(int card, object additionalData)
+        {
+            Card = card;
+            AdditionalData = additionalData;
+        }
+
+        internal CardInPlay MakeUsed()
+        {
+            return new CardInPlay(Card, AdditionalData)
+            {
+                Used = true
+            };
+        }
+    }
     class State
     {
+        public ulong CardsInHandBitflag;
+
+        public void ListToBitflag()
+        {
+            CardsInHandBitflag = 0;
+            foreach (int num in Cards)
+            {
+                if (num >= 0 && num <= 60) // Ensure the number is within the valid range
+                {
+                    CardsInHandBitflag |= (1UL << num);
+                }
+            }
+            //return CardsInHandBitflag; //MARTIN, MEN TÄNK PÅ OM DE ÄR SAMMA TYP, 2 DARK RITUAL, SPELAR INGEN ROLL VILKEN AV DEM MAN HAR I HANDEN.
+        }
+        public bool IsFlagSet(int num)
+        {
+            if (num >= 0 && num <= 60) // Ensure the number is within the valid range
+            {
+                return (CardsInHandBitflag & (1UL << num)) != 0;
+            }
+            return false; // Return false if the number is out of range
+        }
+        public void AddToBitflag(int num)
+        {
+            if (num >= 0 && num <= 60) // Ensure the number is within the valid range
+            {
+                CardsInHandBitflag |= (1UL << num);
+            }
+        }
+        public void RemoveFromBitflag(int num)
+        {
+            if (num >= 0 && num <= 60) // Ensure the number is within the valid range
+            {
+                CardsInHandBitflag &= ~(1UL << num);
+            }
+            else
+            {
+
+            }
+        }
+
         public List<int> Cards;
+        public List<CardInPlay> CardsInPlay;
+        
       
+        public void AddCardsInPlay(int card, object additionalData, bool bargainable)
+        {
+            CardsInPlay = new List<CardInPlay>(CardsInPlay);
+            CardsInPlay.Add(new CardInPlay(card, additionalData));
+            if (bargainable)
+            {
+                BargainFodder++;
+            }
+        }
+
+        internal void SetUsed(CardInPlay t)
+        {
+            CardsInPlay = new List<CardInPlay>(CardsInPlay);
+            CardsInPlay.Remove(t);
+            CardsInPlay.Add(t.MakeUsed());
+        }
+        internal void SetUsed(int t)
+        {
+            var tc = CardsInPlay.Single(p => p.Card == t);
+            SetUsed(tc);
+        }
+        public void RemoveCardsInPlay(int card)
+        {
+            CardsInPlay = new List<CardInPlay>(CardsInPlay);
+            CardsInPlay.RemoveAll(p => p.Card == card);
+        }
         public RunState RunState { get; set; }
 
         public void ModifyRunState(Action<RunState> modaction)
@@ -45,7 +133,16 @@ namespace NecroDeck
 
         public void RemoveCard(int x)
         {
-            Cards.Remove(x);
+            //if (!IsFlagSet(x))
+            //{
+
+            //}
+            RemoveFromBitflag(x);
+            //if (IsFlagSet(x))
+            //{nånting är buggat, de borde fungera även om jag tar bort den där cards...
+
+            //}
+            //Cards = Cards.ExceptItem(x).ToList();
         }
 
         public void Print()
@@ -72,11 +169,13 @@ namespace NecroDeck
         }
 
         public int CardsInHand => Cards.Count;
+        
 
         public int TotalMana => BlackMana + BlueMana + AnyMana + RedMana + GreenMana;
 
         public State Parent { get; private set; }
 
+        
         public int LedInPlay = 0;
         public int AnyMana = 0;
         public int BlackMana = 0;
@@ -94,7 +193,8 @@ namespace NecroDeck
             {
                 LedInPlay = LedInPlay,
                 RunState = RunState,
-                Cards = new List<int>(Cards),
+                Cards = Cards,
+                CardsInPlay = CardsInPlay,
                 BlackMana = BlackMana,
                 BlueMana = BlueMana,
                 RedMana = RedMana,
@@ -104,8 +204,18 @@ namespace NecroDeck
                 BargainFodder = BargainFodder,
                 Win = Win,
                 TimingState = TimingState,
+                CardsInHandBitflag = CardsInHandBitflag,
                 Parent = this
             };
+        }
+
+        internal void ClearMana()
+        {
+            BlackMana = 0;
+            AnyMana = 0;
+            RedMana = 0;
+            GreenMana = 0;
+            BlueMana = 0;
         }
 
         public override bool Equals(object obj)
@@ -121,7 +231,9 @@ namespace NecroDeck
                        LandDrops == other.LandDrops &&
                        BargainFodder == other.BargainFodder &&
                        TimingState == other.TimingState &&
-                       CardCompare(other) &&
+                       CardsInHandBitflag == other.CardsInHandBitflag &&
+                       //CardCompare(other) &&
+                       CardInPlayCompare(other) &&
                        Win == other.Win &&
                        LedInPlay == other.LedInPlay;
             }
@@ -138,15 +250,30 @@ namespace NecroDeck
             return Cards.All(p => other.Cards.Contains(p));
 
         }
+        private bool CardInPlayCompare(State other)
+        {
+            if (CardsInPlay == other.CardsInPlay)
+            {
+                return true;
+            }
+            if (CardsInPlay.Count != other.CardsInPlay.Count)
+            {
+                return false;
+            }
+
+            return CardsInPlay.All(p => other.CardsInPlay.Any(q => q.Card == p.Card));
+
+        }
 
         public override int GetHashCode()
         {
             int hash = 17;
-            hash = hash * 31 + CardsInHand.GetHashCode();
-            hash = hash * 31 + BlackMana.GetHashCode();
-            hash = hash * 31 + BlueMana.GetHashCode();
-            hash = hash * 31 + AnyMana.GetHashCode();
-            hash = hash * 31 + BargainFodder.GetHashCode();
+            hash = hash * 31 + CardsInHandBitflag.GetHashCode();
+            hash = hash * 37 + BlackMana.GetHashCode();
+            hash = hash * 41 + BlueMana.GetHashCode();
+            hash = hash * 7 + AnyMana.GetHashCode();
+            hash = hash * 43 + BargainFodder.GetHashCode();
+            hash = hash * 31 + CardsInPlay.Count.GetHashCode();
             return hash;
         }
 
@@ -179,6 +306,11 @@ namespace NecroDeck
 
         }
 
+        internal void AddCardToHand(int cardId)
+        {
+            AddToBitflag(cardId);
+            Cards = Cards.ConcatItem(cardId).ToList();
+        }
         internal void DrawCards(int v)
         {
             int max = Global.Deck.Cards.Count;
@@ -194,8 +326,17 @@ namespace NecroDeck
                 int number = newRunState.Random.Next(0, max);
                 newRunState.DrawnCards.Add(number);
             }
+            var newCards = newRunState.DrawnCards.Except(RunState.DrawnCards).ToList();
 
-            Cards.AddRange(newRunState.DrawnCards.Except(RunState.DrawnCards).OrderBy(p => p));
+            var totalCards = new List<int>(Cards);
+            foreach (var x in newCards.OrderBy(p => p))
+            {
+                
+                totalCards.Add(x);
+                AddToBitflag(x);
+
+            }
+            Cards = totalCards;
             RunState = newRunState;
         }
 
@@ -332,5 +473,7 @@ namespace NecroDeck
 
 
         }
+
+        
     }
 }

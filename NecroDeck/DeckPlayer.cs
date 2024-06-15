@@ -12,6 +12,7 @@ namespace NecroDeck
         public bool Protected { get; set; }
         public bool Inconclusive { get; internal set; }
         public bool BorneLoss { get; internal set; }
+        public bool GotNecro => NecroState != null;
         public int Index { get; internal set; }
         internal State State { get; set; }
         internal State NecroState { get; set; }
@@ -34,16 +35,13 @@ namespace NecroDeck
                 Random = r,
             };
             start.Cards = new List<int>();
+            start.CardsInPlay = new List<CardInPlay>();
             start.DrawCards(7);
-            bool canMulligan = true;
             State postNecroState = null;
             bool gotBorne = false;
+            //bool gotNecro = false;
 
             start.RunState.CantorInHand = start.Cards.Contains(Global.CantorId);
-
-            //var hand = Get7Unique(deck);
-            //start.Cards = hand;
-           
 
             bool containsPact = start.ContainsCards("pact of negation");
 
@@ -53,7 +51,7 @@ namespace NecroDeck
             }
 
             StructureWrapper<State> open = new QueueWrapper<State>();
-            HashSet<State> closed = new HashSet<State>();
+            var closed = new HashSet<State>();
 
             if (mulligans == 0)
             {
@@ -66,7 +64,7 @@ namespace NecroDeck
                 {
                     if (x.RunState.CantorInHand)
                     {
-                        x.ModifyRunState((st) => st.CantorInHand = x.Cards.Contains(Global.CantorId));//might have mulliganed it away
+                        x.ModifyRunState((st) => st.CantorInHand = x.IsFlagSet(Global.CantorId)); //might have mulliganed it away
                     }
                     open.Enqueue(x);
                 }
@@ -76,8 +74,32 @@ namespace NecroDeck
             while (open.Any())
             {
                 var s = open.Dequeue();
-              
-                if (stopWatch.ElapsedMilliseconds > 5000)
+
+
+                if (s.TimingState == TimingState.InstantOnly)
+                {
+                    if (s.CanPay(Mana.Blue, 1) && Global.Dict["borne upon a wind"].Any(p => s.IsFlagSet(p)))
+                        s.Win = true;
+                    else if (s.CanPay(Mana.Red, 2) && Global.Dict["valakut awakening"].Any(p => s.IsFlagSet(p)))
+                    {
+                        s.Win = true;
+                    }
+
+                    if (s.Win)
+                    {
+                        return new RunResult
+                        {
+                            Win = true,
+                            Mulligans = mulligans,
+                            Protected = containsPact && s.CardsInHand > 0,
+                            State = s,
+                            NecroState = postNecroState,
+                        };
+                    }
+                }
+
+
+                if (stopWatch.ElapsedMilliseconds > 3000)
                 {
                     if (Global.DebugOutput)
                     {
@@ -86,24 +108,24 @@ namespace NecroDeck
 
                     return new RunResult
                     {
-                        
+                     
+                        State = postNecroState,
                         Mulligans = mulligans,
                         Protected = false,
                         Win = false,
                         Inconclusive = true,
+                        NecroState = postNecroState
                     };
                 }
 
-                //if (s.ContainsCards("Necro,CabalRitual,VaultOfWhispers,SpiritGuide"))
-                //{
-
-                //}
+         
                 var newActions = GetActions(s);
 
                 foreach (var x in newActions)
                 {
                     if (closed.Add(x))
                     {
+                        
                         if (x.Win)
                         {
                             return new RunResult
@@ -112,22 +134,23 @@ namespace NecroDeck
                                 Mulligans = mulligans,
                                 Protected = containsPact && x.CardsInHand > 0,
                                 State = x,
-                                NecroState = postNecroState
+                                NecroState = postNecroState,
                             };
                         }
                         if (s.TimingState == TimingState.Borne)
                         {
                             gotBorne = true;
                         }
+                        
                         if (s.TimingState == TimingState.MainPhase && x.TimingState == TimingState.InstantOnly)
                         {
-                            open = new StackWrapper<State>();
+                            open = new QueueWrapper<State>();
                             //open.Clear();
-                            x.BlackMana = 0;
+                            x.ClearMana();
                             open.Enqueue(x);
+                            closed.Clear();
                          
                             postNecroState = x;
-                            canMulligan = false;
                             break;
                         }
 
@@ -136,7 +159,7 @@ namespace NecroDeck
                 }
 
             }
-            if (mulligans < 4 && canMulligan) //cant win on 5 mulligans
+            if (mulligans < 4 && postNecroState == null) //cant win on 5 mulligans
             {
                 mulligans++;
                 goto takeMulligan; //sue me
@@ -149,8 +172,8 @@ namespace NecroDeck
                     Win = false,
                     BorneLoss = gotBorne,
                     Mulligans = mulligans,
-                    NecroState = postNecroState
-
+                    NecroState = postNecroState,
+                    
                 };
 
             }
@@ -159,36 +182,38 @@ namespace NecroDeck
 
         private static IEnumerable<State> GetActions(State s)
         {
+
             foreach (var card in s.Cards)
             {
+                if (!s.IsFlagSet(card))
+                {
+                    continue;
+                }
                 foreach (var x in Rules.GetResult(card, s))
                 {
                     x.RemoveCard(card);
                     yield return x;
                 }
             }
+            foreach (var card in s.CardsInPlay)
+            {
+                if (card.Used)
+                {
+                    continue;
+                }
+                foreach (var x in Rules.GetResultFromInPlay(card.Card, s))
+                {
+                    yield return x;
+                }
+            }
         }
         private Random r;
         
-        List<int> Get7Unique(Deck deck)
-        {
-            int max = deck.Cards.Count;
-            HashSet<int> uniqueNumbers = new HashSet<int>();
-
-            while (uniqueNumbers.Count < 7)
-            {
-                int number = r.Next(0, max);
-                uniqueNumbers.Add(number);
-            }
-
-            return uniqueNumbers.OrderBy(p => p).ToList();
-
-        }
 
         private IEnumerable<State> TakeMulligan(int mullC, State start)
         {
             mullC--;
-            foreach (var xa in start.Cards) 
+            foreach (var xa in start.Cards.Where(p => start.IsFlagSet(p))) 
             {
                 var c = start.Clone().With(p => p.RemoveCard(xa));
                 if (mullC > 0)

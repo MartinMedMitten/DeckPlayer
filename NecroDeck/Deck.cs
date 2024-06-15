@@ -28,6 +28,14 @@ namespace NecroDeck
 
             Cards = OrderByPriority(Cards);
 
+            for (int i = 0; i < Cards.Count; i++)
+            {
+                if (!Global.Dict.ContainsKey(Cards[i]))
+                {
+                    Global.Dict[Cards[i]] = new List<int>();
+                }
+                Global.Dict[Cards[i]].Add(i);
+            }
 
             if (Cards.Contains("wild cantor"))
             {
