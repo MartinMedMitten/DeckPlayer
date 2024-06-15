@@ -64,7 +64,7 @@ namespace NecroDeck
                 {
                     if (x.RunState.CantorInHand)
                     {
-                        x.ModifyRunState((st) => st.CantorInHand = x.IsFlagSet(Global.CantorId)); //might have mulliganed it away
+                        x.ModifyRunState((st) => st.CantorInHand = x.HasCardInHand(Global.CantorId)); //might have mulliganed it away
                     }
                     open.Enqueue(x);
                 }
@@ -78,9 +78,9 @@ namespace NecroDeck
 
                 if (s.TimingState == TimingState.InstantOnly)
                 {
-                    if (s.CanPay(Mana.Blue, 1) && Global.Dict["borne upon a wind"].Any(p => s.IsFlagSet(p)))
+                    if (s.CanPay(Mana.Blue, 1) && Global.Dict["borne upon a wind"].Any(p => s.HasCardInHand(p)))
                         s.Win = true;
-                    else if (s.CanPay(Mana.Red, 2) && Global.Dict["valakut awakening"].Any(p => s.IsFlagSet(p)))
+                    else if (s.CanPay(Mana.Red, 2) && Global.Dict["valakut awakening"].Any(p => s.HasCardInHand(p)))
                     {
                         s.Win = true;
                     }
@@ -185,7 +185,7 @@ namespace NecroDeck
 
             foreach (var card in s.Cards)
             {
-                if (!s.IsFlagSet(card))
+                if (!s.HasCardInHand(card))
                 {
                     continue;
                 }
@@ -213,7 +213,7 @@ namespace NecroDeck
         private IEnumerable<State> TakeMulligan(int mullC, State start)
         {
             mullC--;
-            foreach (var xa in start.Cards.Where(p => start.IsFlagSet(p))) 
+            foreach (var xa in start.Cards.Where(p => start.HasCardInHand(p))) 
             {
                 var c = start.Clone().With(p => p.RemoveCard(xa));
                 if (mullC > 0)

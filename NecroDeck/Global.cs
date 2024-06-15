@@ -17,7 +17,7 @@ namespace NecroDeck
             get
             {
                 var c = RegularRunCount / 100;
-                return c < 1 ? 1 : 0;
+                return c < 1 ? 1 : c;
             }
         }
 

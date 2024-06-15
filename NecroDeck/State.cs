@@ -66,7 +66,7 @@ namespace NecroDeck
             }
             //return CardsInHandBitflag; //MARTIN, MEN TÄNK PÅ OM DE ÄR SAMMA TYP, 2 DARK RITUAL, SPELAR INGEN ROLL VILKEN AV DEM MAN HAR I HANDEN.
         }
-        public bool IsFlagSet(int num)
+        public bool HasCardInHand(int num)
         {
             if (num >= 0 && num <= 60) // Ensure the number is within the valid range
             {
@@ -310,6 +310,7 @@ namespace NecroDeck
         {
             AddToBitflag(cardId);
             Cards = Cards.ConcatItem(cardId).ToList();
+            ModifyRunState(x => x.DrawnCards = new HashSet<int>(x.DrawnCards.ConcatItem(cardId)));
         }
         internal void DrawCards(int v)
         {

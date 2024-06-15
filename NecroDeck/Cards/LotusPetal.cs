@@ -29,5 +29,5 @@ namespace NecroDeck.Cards
             yield return arg.Clone().With(p => p.AddCardsInPlay(card, null, true));
 
         }
-    }
+    }  
 }

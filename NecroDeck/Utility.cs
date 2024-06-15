@@ -29,6 +29,21 @@ namespace NecroDeck
                 }
             }
         }
+        public static T FirstOrDefault<T>(this IEnumerable<T> source, Func<T, bool> predicate, T defaultValue)
+        {
+            if (source == null) throw new ArgumentNullException(nameof(source));
+            if (predicate == null) throw new ArgumentNullException(nameof(predicate));
+
+            foreach (var element in source)
+            {
+                if (predicate(element))
+                {
+                    return element;
+                }
+            }
+
+            return defaultValue;
+        }
         public static IEnumerable<T> ConcatItem<T>(this IEnumerable<T> e, T item)
         {
             foreach (var x in e)
