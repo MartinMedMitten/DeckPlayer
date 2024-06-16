@@ -27,7 +27,7 @@ namespace NecroDeck.Cards
                     x.SerumPowder++;
                 });
                 p.DrawCards(c);
-                p.Powderable = !p.HasCardInHand(Global.Dict["tendrils of agony"].First()) && Global.Dict["serum powder"].Any(q => p.HasCardInHand(q));
+                p.Powderable = !Global.Dict["tendrils of agony"].All(q => p.HasCardInHand(q)) && Global.Dict["serum powder"].Any(q => p.HasCardInHand(q));
             });
         }
 

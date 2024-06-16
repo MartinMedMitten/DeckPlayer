@@ -65,7 +65,8 @@ namespace NecroDeck
             {
                 open.Enqueue(start);
                 closed.Add(start);
-                start.Powderable = !start.HasCardInHand(Global.Dict["tendrils of agony"].First()) && Global.Dict["serum powder"].Any(q => start.HasCardInHand(q));
+
+                start.Powderable = !Global.Dict["tendrils of agony"].All(q => start.HasCardInHand(q)) && Global.Dict["serum powder"].Any(q => start.HasCardInHand(q));
             }
             else
             {
@@ -75,7 +76,7 @@ namespace NecroDeck
                     {
                         x.ModifyRunState((st) => st.CantorInHand = x.HasCardInHand(Global.CantorId)); //might have mulliganed it away
                     }
-                    x.Powderable = !x.HasCardInHand(Global.Dict["tendrils of agony"].First()) && Global.Dict["serum powder"].Any(q => x.HasCardInHand(q));
+                    x.Powderable = !Global.Dict["tendrils of agony"].All(q => x.HasCardInHand(q)) && Global.Dict["serum powder"].Any(q => x.HasCardInHand(q));
 
                     open.Enqueue(x);
                 }
