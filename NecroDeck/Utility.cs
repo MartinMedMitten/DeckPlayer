@@ -68,5 +68,17 @@ namespace NecroDeck
             return s.Pop();
         }
 
+        internal static List<int> BitFlagToList(ulong cardsInHandBitflag)
+        {
+            List<int> intList = new List<int>();
+            for (int i = 0; i <= 60; i++)
+            {
+                if ((cardsInHandBitflag & (1UL << i)) != 0)
+                {
+                    intList.Add(i);
+                }
+            }
+            return intList;
+        }
     }
 }

@@ -23,6 +23,7 @@ namespace NecroDeck.Cards
                 p.CardsInHandBitflag = 0;
                 p.ModifyRunState(x =>
                 {
+                    x.ExiledToPowder = exiledCards;
                     x.SerumPowder++;
                 });
                 p.DrawCards(c);

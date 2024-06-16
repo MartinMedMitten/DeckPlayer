@@ -24,6 +24,8 @@ namespace NecroDeck
         {
             r = new Random(seed);
             int mulligans = 0;
+            ulong exiledToPowder = 0;
+
         takeMulligan:
             var stopWatch = new Stopwatch();
             stopWatch.Start();
@@ -35,6 +37,12 @@ namespace NecroDeck
             {
                 Random = r,
             };
+            
+            foreach (var x in Utility.BitFlagToList(exiledToPowder))
+            {
+                start.RunState.DrawnCards.Add(x);
+            }
+
             start.Cards = new List<int>();
             start.CardsInPlay = new List<CardInPlay>();
             start.DrawCards(7);
@@ -130,6 +138,10 @@ namespace NecroDeck
 
                 foreach (var x in newActions)
                 {
+                    if (x.RunState.ExiledToPowder != 0)
+                    {
+                        exiledToPowder |= x.RunState.ExiledToPowder;
+                    }
                     if (closed.Add(x))
                     {
                         

@@ -10,6 +10,7 @@ namespace NecroDeck
         public bool CantorInHand { get; set; }
         public Random Random { get; internal set; }
         public int SerumPowder { get; internal set; }
+        public ulong ExiledToPowder { get; internal set; }
 
         public HashSet<int> DrawnCards = new HashSet<int>();
 
@@ -21,6 +22,7 @@ namespace NecroDeck
                 DrawnCards = new HashSet<int>(DrawnCards),
                 Random = Random,
                 SerumPowder = SerumPowder,
+                ExiledToPowder = ExiledToPowder
 
             };
         }
@@ -70,15 +72,8 @@ namespace NecroDeck
         }
         public List<int> BitflagToList()
         {
-            List<int> intList = new List<int>();
-            for (int i = 0; i <= 60; i++)
-            {
-                if ((CardsInHandBitflag & (1UL << i)) != 0)
-                {
-                    intList.Add(i);
-                }
-            }
-            return intList;
+            return Utility.BitFlagToList(CardsInHandBitflag);
+           
         }
         public bool HasCardInHand(int num)
         {

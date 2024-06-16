@@ -19,7 +19,7 @@ namespace NecroDeck
             Global.DebugRunCount = 10;
             Global.RegularRunCount = 10000;
             Global.DebugOutput = false;
-            Global.RunPostNecro = false;
+            Global.RunPostNecro = true;
             RegularRun();
 
         }
