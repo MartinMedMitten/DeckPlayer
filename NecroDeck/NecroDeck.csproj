@@ -64,6 +64,7 @@
     <Compile Include="Cards\Necrologia.cs" />
     <Compile Include="Cards\Necropotence.cs" />
     <Compile Include="Cards\PactOfNegation.cs" />
+    <Compile Include="Cards\SerumPowder.cs" />
     <Compile Include="Cards\SimianSpiritGuide.cs" />
     <Compile Include="Cards\SummonersPact.cs" />
     <Compile Include="Cards\TendrilsOfAgony.cs" />

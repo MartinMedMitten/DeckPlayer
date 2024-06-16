@@ -9,6 +9,7 @@ namespace NecroDeck
     {
         public bool CantorInHand { get; set; }
         public Random Random { get; internal set; }
+        public int SerumPowder { get; internal set; }
 
         public HashSet<int> DrawnCards = new HashSet<int>();
 
@@ -19,6 +20,7 @@ namespace NecroDeck
                 CantorInHand = CantorInHand,
                 DrawnCards = new HashSet<int>(DrawnCards),
                 Random = Random,
+                SerumPowder = SerumPowder,
 
             };
         }
@@ -65,6 +67,18 @@ namespace NecroDeck
                 }
             }
             //return CardsInHandBitflag; //MARTIN, MEN TÄNK PÅ OM DE ÄR SAMMA TYP, 2 DARK RITUAL, SPELAR INGEN ROLL VILKEN AV DEM MAN HAR I HANDEN.
+        }
+        public List<int> BitflagToList()
+        {
+            List<int> intList = new List<int>();
+            for (int i = 0; i <= 60; i++)
+            {
+                if ((CardsInHandBitflag & (1UL << i)) != 0)
+                {
+                    intList.Add(i);
+                }
+            }
+            return intList;
         }
         public bool HasCardInHand(int num)
         {
@@ -168,14 +182,15 @@ namespace NecroDeck
             return sb.ToString();
         }
 
-        public int CardsInHand => Cards.Count;
+        public int CardsInHand => Cards.Where(q => HasCardInHand(q)).Count();
         
 
         public int TotalMana => BlackMana + BlueMana + AnyMana + RedMana + GreenMana;
 
         public State Parent { get; private set; }
+        public bool Powderable { get; internal set; }
+        public string Text { get; internal set; }
 
-        
         public int LedInPlay = 0;
         public int AnyMana = 0;
         public int BlackMana = 0;

@@ -4,14 +4,15 @@
 4x Simian Spirit Guide
 4x Vault Of Whispers
 3x Gemstone Mine
-3x Valakut Awakening
+4x Valakut Awakening
 4x Lotus Petal
 4x Summoner's Pact
 4x Necrodominance
-4x Beseech the mirror
+2x Beseech the mirror
+4x Serum powder
 4x Manamorphose
 3x Borne upon a wind
-1x Chrome Mox
+0x Chrome Mox
 1x Wild Cantor
 1x Tendrils of agony
-8x Pact Of Negation
+6x Pact Of Negation

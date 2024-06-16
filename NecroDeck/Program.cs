@@ -19,9 +19,9 @@ namespace NecroDeck
         static void Main(string[] args)
         {
             Global.DebugRunCount = 10;
-            Global.RegularRunCount = 1000;
-            Global.DebugOutput = true;
-            Global.RunPostNecro = true;
+            Global.RegularRunCount = 10000;
+            Global.DebugOutput = false;
+            Global.RunPostNecro = false;
             RegularRun();
 
         }
@@ -92,7 +92,7 @@ namespace NecroDeck
                         Console.WriteLine(i);
                     }
                 }
-                var seed = Global.DebugOutput ? i : Global.R.Next(0, Int32.MaxValue);
+                var seed = Global.DebugOutput ? i : Global.R.Next(0, int.MaxValue);
                 var run = runner.Run(deck, seed);
                 run.Index = i;
                 runResults.Add(run);
@@ -124,8 +124,8 @@ namespace NecroDeck
             Console.WriteLine("Inconclusive " + inconclusive);
             Console.WriteLine("Got necro" + gotNecro);
             Console.WriteLine("Lost with necro" + (wins - gotNecro));
-            Console.WriteLine("Got borne" + gotBourne);
-            Console.WriteLine("Borne fizzled" + gotBorneFizzled);
+            //Console.WriteLine("Got borne" + gotBourne);
+            //Console.WriteLine("Borne fizzled" + gotBorneFizzled);
             if (cutrun)
             {
                 return wins;
@@ -145,6 +145,12 @@ namespace NecroDeck
                     if (inp.StartsWith("inconclusive"))
                     {
                         var r = runResults.Where(q => q.Inconclusive).ToList();
+                        Console.WriteLine($"Found {r.Count()} games");
+                        Console.WriteLine(string.Join(", ", r.Select(p => p.Index)));
+                    }
+                    if (inp.StartsWith("serum"))
+                    {
+                        var r = runResults.Where(q => q.SerumPowder > 0).ToList();
                         Console.WriteLine($"Found {r.Count()} games");
                         Console.WriteLine(string.Join(", ", r.Select(p => p.Index)));
                     }
@@ -220,8 +226,8 @@ namespace NecroDeck
                 else
                 {//de är mana förändringarna
                     var next = playOrder[i + 1];
-                    var missingCard = x.Cards.Where(p => !next.Cards.Contains(p)).Select(q => Global.Deck.Cards[q]).ToList();
-                    var newCards = next.Cards.Where(p => !x.Cards.Contains(p)).Select(q => Global.Deck.Cards[q]).ToList();
+                    var missingCard = x.BitflagToList().Where(p => !next.BitflagToList().Contains(p)).Select(q => Global.Deck.Cards[q]).ToList();
+                    var newCards = next.BitflagToList().Where(p => !x.BitflagToList().Contains(p)).Select(q => Global.Deck.Cards[q]).ToList();
 
                     if (missingCard.Any() || newCards.Any())
                     {

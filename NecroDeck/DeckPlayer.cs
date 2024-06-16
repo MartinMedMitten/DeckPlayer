@@ -14,6 +14,7 @@ namespace NecroDeck
         public bool BorneLoss { get; internal set; }
         public bool GotNecro => NecroState != null;
         public int Index { get; internal set; }
+        public int SerumPowder { get; internal set; }
         internal State State { get; set; }
         internal State NecroState { get; set; }
     }
@@ -57,6 +58,7 @@ namespace NecroDeck
             {
                 open.Enqueue(start);
                 closed.Add(start);
+                start.Powderable = !start.HasCardInHand(Global.Dict["tendrils of agony"].First()) && Global.Dict["serum powder"].Any(q => start.HasCardInHand(q));
             }
             else
             {
@@ -66,6 +68,8 @@ namespace NecroDeck
                     {
                         x.ModifyRunState((st) => st.CantorInHand = x.HasCardInHand(Global.CantorId)); //might have mulliganed it away
                     }
+                    x.Powderable = !x.HasCardInHand(Global.Dict["tendrils of agony"].First()) && Global.Dict["serum powder"].Any(q => x.HasCardInHand(q));
+
                     open.Enqueue(x);
                 }
             }
@@ -75,6 +79,7 @@ namespace NecroDeck
             {
                 var s = open.Dequeue();
 
+                
 
                 if (s.TimingState == TimingState.InstantOnly)
                 {
@@ -94,6 +99,7 @@ namespace NecroDeck
                             Protected = containsPact && s.CardsInHand > 0,
                             State = s,
                             NecroState = postNecroState,
+                            SerumPowder = s.RunState.SerumPowder,
                         };
                     }
                 }
@@ -135,6 +141,8 @@ namespace NecroDeck
                                 Protected = containsPact && x.CardsInHand > 0,
                                 State = x,
                                 NecroState = postNecroState,
+                                SerumPowder = s.RunState.SerumPowder,
+
                             };
                         }
                         if (s.TimingState == TimingState.Borne)
@@ -189,9 +197,10 @@ namespace NecroDeck
                 {
                     continue;
                 }
-                foreach (var x in Rules.GetResult(card, s))
+                foreach (var x in Rules.GetResult(card, s)) //om jag här kollar att den overridear, så ska jag prioritera det!
                 {
                     x.RemoveCard(card);
+                    x.Text = Global.Deck.Cards[card];
                     yield return x;
                 }
             }
