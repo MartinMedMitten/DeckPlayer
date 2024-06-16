@@ -21,7 +21,7 @@ namespace NecroDeck
             }
         }
 
-        public static bool ContainsCantor { get; internal set; }
+        public static bool ContainsCantor { get; internal set; } //TODO this is probably not needed any more
         public static int CantorId { get; internal set; }
 
         public static Random R = new Random(1);

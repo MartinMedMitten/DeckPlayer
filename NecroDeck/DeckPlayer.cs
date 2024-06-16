@@ -20,7 +20,7 @@ namespace NecroDeck
     }
     public class DeckPlayer
     {
-        public RunResult Run(Deck deck, int seed)
+        public RunResult Run(int seed)
         {
             r = new Random(seed);
             int mulligans = 0;
@@ -40,11 +40,10 @@ namespace NecroDeck
             start.DrawCards(7);
             State postNecroState = null;
             bool gotBorne = false;
-            //bool gotNecro = false;
 
             start.RunState.CantorInHand = start.Cards.Contains(Global.CantorId);
 
-            bool containsPact = start.ContainsCards("pact of negation");
+            bool containsPact = start.ContainsCards("pact of negation"); //TODO does not work with serum powder currently, so protected % will be to high
 
             if (Global.DebugOutput)
             {
@@ -75,14 +74,24 @@ namespace NecroDeck
             }
 
 
+            RunResult Win(State s) => new RunResult
+            {
+                Win = true,
+                Mulligans = mulligans,
+                Protected = containsPact && s.CardsInHand > 0,
+                State = s,
+                NecroState = postNecroState,
+                SerumPowder = s.RunState.SerumPowder,
+            };
+
+
             while (open.Any())
             {
                 var s = open.Dequeue();
 
-                
-
                 if (s.TimingState == TimingState.InstantOnly)
                 {
+                    //heuristics for post necro win.
                     if (s.CanPay(Mana.Blue, 1) && Global.Dict["borne upon a wind"].Any(p => s.HasCardInHand(p)))
                         s.Win = true;
                     else if (s.CanPay(Mana.Red, 2) && Global.Dict["valakut awakening"].Any(p => s.HasCardInHand(p)))
@@ -92,15 +101,7 @@ namespace NecroDeck
 
                     if (s.Win)
                     {
-                        return new RunResult
-                        {
-                            Win = true,
-                            Mulligans = mulligans,
-                            Protected = containsPact && s.CardsInHand > 0,
-                            State = s,
-                            NecroState = postNecroState,
-                            SerumPowder = s.RunState.SerumPowder,
-                        };
+                        return Win(s);
                     }
                 }
 
@@ -134,16 +135,7 @@ namespace NecroDeck
                         
                         if (x.Win)
                         {
-                            return new RunResult
-                            {
-                                Win = true,
-                                Mulligans = mulligans,
-                                Protected = containsPact && x.CardsInHand > 0,
-                                State = x,
-                                NecroState = postNecroState,
-                                SerumPowder = s.RunState.SerumPowder,
-
-                            };
+                            return Win(x);
                         }
                         if (s.TimingState == TimingState.Borne)
                         {
@@ -153,7 +145,6 @@ namespace NecroDeck
                         if (s.TimingState == TimingState.MainPhase && x.TimingState == TimingState.InstantOnly)
                         {
                             open = new QueueWrapper<State>();
-                            //open.Clear();
                             x.ClearMana();
                             open.Enqueue(x);
                             closed.Clear();

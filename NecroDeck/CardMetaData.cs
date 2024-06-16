@@ -2,15 +2,7 @@
 
 namespace NecroDeck
 {
-    //enum Color
-    //{
-    //    Black,
-    //    RedGreen,
-    //    Red,
-    //    Green,
-    //    Other,
-    //    None
-    //}
+    
     abstract class CardMetaData
     {
         public abstract string Name { get; }

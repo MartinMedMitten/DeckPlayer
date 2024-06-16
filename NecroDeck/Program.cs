@@ -93,7 +93,7 @@ namespace NecroDeck
                     }
                 }
                 var seed = Global.DebugOutput ? i : Global.R.Next(0, int.MaxValue);
-                var run = runner.Run(deck, seed);
+                var run = runner.Run(seed);
                 run.Index = i;
                 runResults.Add(run);
 

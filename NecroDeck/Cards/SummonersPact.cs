@@ -10,8 +10,8 @@ namespace NecroDeck.Cards
 
         public override IEnumerable<State> FromHand(State arg, int cardId)
         {
-            yield return arg.Clone().With(p => p.GreenMana++);
-            if (Global.ContainsCantor && !arg.RunState.CantorInHand && arg.TimingState != TimingState.InstantOnly) //TODO if wildcantor is in deck and not it hand
+            yield return arg.Clone().With(p => p.GreenMana++); //TODO implement this as a tutor for esg instead
+            if (Global.ContainsCantor && !arg.RunState.CantorInHand && arg.TimingState != TimingState.InstantOnly) 
             {
                 yield return arg.Clone().With(p => { p.AddCardToHand(Global.CantorId); p.ModifyRunState(x => x.CantorInHand = true); });
             }
