@@ -182,7 +182,7 @@ namespace NecroDeck
             return sb.ToString();
         }
 
-        public int CardsInHand => Cards.Where(q => HasCardInHand(q)).Count();
+        public int CardsInHandCount => Cards.Where(q => HasCardInHand(q)).Count();
         
 
         public int TotalMana => BlackMana + BlueMana + AnyMana + RedMana + GreenMana;

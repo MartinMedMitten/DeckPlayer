@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace NecroDeck.Cards
 {
@@ -17,10 +18,15 @@ namespace NecroDeck.Cards
 
             yield return arg.Clone().With(p =>
             {
-                var c = p.CardsInHand;
+                var c = p.CardsInHandCount;
+                var exiledCards = p.CardsInHandBitflag;
                 p.CardsInHandBitflag = 0;
-                p.ModifyRunState(x => x.SerumPowder++);
+                p.ModifyRunState(x =>
+                {
+                    x.SerumPowder++;
+                });
                 p.DrawCards(c);
+                p.Powderable = !p.HasCardInHand(Global.Dict["tendrils of agony"].First()) && Global.Dict["serum powder"].Any(q => p.HasCardInHand(q));
             });
         }
 

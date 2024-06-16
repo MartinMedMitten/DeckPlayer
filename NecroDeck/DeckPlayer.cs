@@ -78,7 +78,7 @@ namespace NecroDeck
             {
                 Win = true,
                 Mulligans = mulligans,
-                Protected = containsPact && s.CardsInHand > 0,
+                Protected = containsPact && s.CardsInHandCount > 0,
                 State = s,
                 NecroState = postNecroState,
                 SerumPowder = s.RunState.SerumPowder,
