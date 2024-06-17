@@ -2,17 +2,19 @@
 4x Cabal Ritual
 4x Elvish Spirit Guide
 4x Simian Spirit Guide
-4x Vault Of Whispers
-3x Gemstone Mine
+0x Vault Of Whispers
+7x Gemstone Mine
 4x Valakut Awakening
+0x Big Score
 4x Lotus Petal
 4x Summoner's Pact
 4x Necrodominance
-2x Beseech the mirror
-3x Serum powder
+0x Beseech the mirror
+1x necrologia
+4x Serum powder
 4x Manamorphose
-3x Borne upon a wind
+2x Borne upon a wind
 0x Chrome Mox
 1x Wild Cantor
-1x Tendrils of agony
+2x Tendrils of agony
 7x Pact Of Negation

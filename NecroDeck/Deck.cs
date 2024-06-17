@@ -27,7 +27,7 @@ namespace NecroDeck
             }
 
             Cards = OrderByPriority(Cards);
-
+            Global.Dict.Add("serum powder", new List<int>());
             for (int i = 0; i < Cards.Count; i++)
             {
                 if (!Global.Dict.ContainsKey(Cards[i]))

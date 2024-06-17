@@ -29,7 +29,7 @@ namespace NecroDeck.Cards
                     }
                 }
             }
-            else
+            else 
             {
                 if (arg.CanPay(Mana.Black, 2, 3))
                 {

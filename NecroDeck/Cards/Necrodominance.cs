@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace NecroDeck.Cards
 {
@@ -29,7 +30,7 @@ namespace NecroDeck.Cards
                         });
                     }
                 }
-                else
+                else 
                 {
                     yield return arg.Clone().With(p => p.Win = true);
                 }

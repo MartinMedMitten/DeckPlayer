@@ -20,7 +20,7 @@ namespace NecroDeck.Cards
             {
                 //om jag tar fram first index of för manamorphose, bourne, och beseech tendrils samt alla spirit guides
                 //sen slänger resten och drar så många nya. Då har vi kanske de klart och betart
-                var l = arg.Cards.Where(p => !Global.Deck.Cards[p].StartsWith("dark r") && !Global.Deck.Cards[p].StartsWith("lotus") && !Global.Deck.Cards[p].StartsWith("tend") && !Global.Deck.Cards[p].Contains("spirit")).ToList();
+                var l = arg.Cards.Where(p => !Global.Deck.Cards[p].StartsWith("dark r") && !Global.Deck.Cards[p].StartsWith("lotu") && !Global.Deck.Cards[p].StartsWith("tend") && !Global.Deck.Cards[p].Contains("spirit")).ToList();
                 //sen ta bort alla utom första manamorphose, bourne och beseech
                 var borne = l.FirstIndexOf(x => Global.Deck.Cards[x].StartsWith("born"));
                 var manamorphose = l.FirstIndexOf(x => Global.Deck.Cards[x].StartsWith("manamorp"));

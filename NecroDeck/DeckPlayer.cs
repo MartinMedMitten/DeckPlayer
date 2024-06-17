@@ -37,7 +37,9 @@ namespace NecroDeck
             {
                 Random = r,
             };
-            
+
+            ulong exiledToPowderThisMull = 0;
+
             foreach (var x in Utility.BitFlagToList(exiledToPowder))
             {
                 start.RunState.DrawnCards.Add(x);
@@ -101,9 +103,9 @@ namespace NecroDeck
                 if (s.TimingState == TimingState.InstantOnly)
                 {
                     //heuristics for post necro win.
-                    if (s.CanPay(Mana.Blue, 1) && Global.Dict["borne upon a wind"].Any(p => s.HasCardInHand(p)))
+                    if (s.CanPay(Mana.Blue, 1, 1) && Global.Dict["borne upon a wind"].Any(p => s.HasCardInHand(p)))
                         s.Win = true;
-                    else if (s.CanPay(Mana.Red, 2) && Global.Dict["valakut awakening"].Any(p => s.HasCardInHand(p)))
+                    else if (s.CanPay(Mana.Red, 1, 2) && Global.Dict["valakut awakening"].Any(p => s.HasCardInHand(p)))
                     {
                         s.Win = true;
                     }
@@ -137,11 +139,11 @@ namespace NecroDeck
          
                 var newActions = GetActions(s);
 
-                foreach (var x in newActions)
+                foreach (var x in newActions.OrderByDescending(p => p.LandDrops))
                 {
                     if (x.RunState.ExiledToPowder != 0)
                     {
-                        exiledToPowder |= x.RunState.ExiledToPowder;
+                        exiledToPowderThisMull |= x.RunState.ExiledToPowder;
                     }
                     if (closed.Add(x))
                     {
@@ -157,8 +159,18 @@ namespace NecroDeck
                         
                         if (s.TimingState == TimingState.MainPhase && x.TimingState == TimingState.InstantOnly)
                         {
+                            
                             open = new QueueWrapper<State>();
                             x.ClearMana();
+                            var qqq = Global.Dict["lotus petal"].Where(q => s.HasCardInHand(q)).ToList();
+                            if (qqq.Any())
+                            {
+                                foreach (var asdf in qqq)
+                                {
+                                    x.RemoveCard(asdf);
+                                    x.AnyMana++;
+                                }
+                            }
                             open.Enqueue(x);
                             closed.Clear();
                          
@@ -166,13 +178,26 @@ namespace NecroDeck
                             break;
                         }
 
+                        
                         open.Enqueue(x);
+
                     }
+                    
                 }
 
             }
             if (mulligans < 4 && postNecroState == null) //cant win on 5 mulligans
             {
+                if (exiledToPowderThisMull != 0)
+                {
+                    var l = Utility.BitFlagToList(exiledToPowderThisMull);
+
+                    l.RemoveRange(0, mulligans);
+                    
+
+                    exiledToPowder |= Utility.ListToBitflag(l);
+                }
+
                 mulligans++;
                 goto takeMulligan; //sue me
             }

@@ -53,6 +53,8 @@ namespace NecroDeck
             yield return item;
         }
 
+        
+
         public static T With<T>(this T t, Action<T> a)
         {
             a(t);
@@ -67,7 +69,18 @@ namespace NecroDeck
         {
             return s.Pop();
         }
-
+        internal static ulong ListToBitflag(List<int> cards)
+        {
+            ulong rest = 0;
+            foreach (int num in cards)
+            {
+                if (num >= 0 && num <= 60) // Ensure the number is within the valid range
+                {
+                    rest |= (1UL << num);
+                }
+            }
+            return rest;
+        }
         internal static List<int> BitFlagToList(ulong cardsInHandBitflag)
         {
             List<int> intList = new List<int>();

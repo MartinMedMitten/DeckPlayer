@@ -19,7 +19,7 @@ namespace NecroDeck
             Global.DebugRunCount = 10;
             Global.RegularRunCount = 10000;
             Global.DebugOutput = false;
-            Global.RunPostNecro = true;
+            Global.RunPostNecro = false;
             RegularRun();
 
         }
@@ -36,7 +36,7 @@ namespace NecroDeck
         {
             Global.Deck = new Deck();
             List<CutStats> cutStats = new List<CutStats>();
-            var cuttables = Global.Deck.Cards.Distinct().Except(new[] { "tendrils of agony", "borne upon a wind", "big score", "necropotence", "dark ritual", "lotus petal" }).ToList();
+            var cuttables = Global.Deck.Cards.Distinct().Except(new[] { "tendrils of agony",  "necropotence", "dark ritual", "lotus petal" }).ToList();
             foreach (var x in cuttables)
             {
                 var firstIndexOf = Global.Deck.Cards.IndexOf(x);

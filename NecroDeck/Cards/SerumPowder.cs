@@ -26,8 +26,9 @@ namespace NecroDeck.Cards
                     x.ExiledToPowder = exiledCards;
                     x.SerumPowder++;
                 });
+              
                 p.DrawCards(c);
-                p.Powderable = !Global.Dict["tendrils of agony"].All(q => p.HasCardInHand(q)) && Global.Dict["serum powder"].Any(q => p.HasCardInHand(q));
+                p.Powderable = !Global.Dict["tendrils of agony"].All(q => p.HasCardInHand(q)) && !Global.Dict["necrodominance"].Any(q => p.HasCardInHand(q)) && !Global.Dict["dark ritual"].Any(q => p.HasCardInHand(q));
             });
         }
 

@@ -60,20 +60,17 @@ namespace NecroDeck
 
         public void ListToBitflag()
         {
-            CardsInHandBitflag = 0;
-            foreach (int num in Cards)
-            {
-                if (num >= 0 && num <= 60) // Ensure the number is within the valid range
-                {
-                    CardsInHandBitflag |= (1UL << num);
-                }
-            }
+            CardsInHandBitflag = Utility.ListToBitflag(Cards);
             //return CardsInHandBitflag; //MARTIN, MEN TÄNK PÅ OM DE ÄR SAMMA TYP, 2 DARK RITUAL, SPELAR INGEN ROLL VILKEN AV DEM MAN HAR I HANDEN.
         }
         public List<int> BitflagToList()
         {
             return Utility.BitFlagToList(CardsInHandBitflag);
            
+        }
+        public bool HasOne(string name)
+        {
+            return Global.Dict[name].Any(qq => HasCardInHand(qq));
         }
         public bool HasCardInHand(int num)
         {
