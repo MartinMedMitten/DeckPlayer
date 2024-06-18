@@ -21,6 +21,7 @@ namespace NecroDeck
             Global.DebugOutput = false;
             Global.RunPostNecro = false;
             RegularRun();
+            //CutRun();
 
         }
 
@@ -40,7 +41,8 @@ namespace NecroDeck
             foreach (var x in cuttables)
             {
                 var firstIndexOf = Global.Deck.Cards.IndexOf(x);
-                Global.Deck.Cards.RemoveAt(firstIndexOf);
+                Global.Deck = new Deck(firstIndexOf);
+                //Global.Deck.Cards.RemoveAt(firstIndexOf);
                 if (x == "wild cantor")
                 {
                     Global.ContainsCantor = false;
@@ -75,6 +77,10 @@ namespace NecroDeck
             var losses = new List<int>();
             for (int i = 0; i < Global.Runs; i++)
             {
+                if (i == 9999)
+                {
+
+                }
                 if (Global.DebugOutput)
                 {
                     if (i == 5)
@@ -115,6 +121,12 @@ namespace NecroDeck
             var gotBourne = runResults.Where(p => p.State?.TimingState == TimingState.Borne).Count();
             var gotBorneFizzled = runResults.Where(p => p.BorneLoss).Count();
 
+            //foreach (var x in runResults.Partition(100)) //to show chunks, and why goldfishing 100 hands is really random.
+            //{
+            //    Console.WriteLine(x.Count(p => p.Win));
+            //}
+
+
             Console.WriteLine(stopWatch.ElapsedMilliseconds + " ms");
 
             Console.WriteLine("wins " + wins);
@@ -149,10 +161,28 @@ namespace NecroDeck
                     if (inp.StartsWith("serum"))
                     {
                         var r = runResults.Where(q => q.SerumPowder > 0).ToList();
+                        Console.WriteLine($"Found {r.Count()} games, won {r.Count(p => p.Win)}");
+                        Console.WriteLine(string.Join(", ", r.Select(p => p.Index)));
+                    }
+                    if (inp.StartsWith("powdered "))
+                    {
+                        var spl = inp.Split(',');
+                        int amount = int.Parse(spl[1]);
+                        var card = string.Join(" ", spl.Skip(2));
+
+                        var r = runResults.Where(asdf => Global.Dict[card].Count(q => Utility.BitFlagToList(asdf.ExiledToPowder).Contains(q)) == amount).ToList();
                         Console.WriteLine($"Found {r.Count()} games");
                         Console.WriteLine(string.Join(", ", r.Select(p => p.Index)));
                     }
+                    if (inp.StartsWith("showpowdered "))
+                    {
+                        var spl = inp.Split(' ');
+                        int index = int.Parse(spl[1]);
+                        var runres = runResults[index];
+                        Console.WriteLine(string.Join(", ", Utility.BitFlagToList(runres.ExiledToPowder).Select(aa => Global.Deck.Cards[aa])));
 
+
+                    }
                     if (inp.StartsWith("findloss "))
                     {
                         var spl = inp.Split(' ');

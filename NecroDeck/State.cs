@@ -11,6 +11,7 @@ namespace NecroDeck
         public Random Random { get; internal set; }
         public int SerumPowder { get; internal set; }
         public ulong ExiledToPowder { get; internal set; }
+        public List<int> CardOrder { get; internal set; }
 
         public HashSet<int> DrawnCards = new HashSet<int>();
 
@@ -22,8 +23,8 @@ namespace NecroDeck
                 DrawnCards = new HashSet<int>(DrawnCards),
                 Random = Random,
                 SerumPowder = SerumPowder,
-                ExiledToPowder = ExiledToPowder
-
+                ExiledToPowder = ExiledToPowder,
+                CardOrder = CardOrder,
             };
         }
     }
@@ -74,11 +75,7 @@ namespace NecroDeck
         }
         public bool HasCardInHand(int num)
         {
-            if (num >= 0 && num <= 60) // Ensure the number is within the valid range
-            {
-                return (CardsInHandBitflag & (1UL << num)) != 0;
-            }
-            return false; // Return false if the number is out of range
+            return Utility.HasBitFlag(num, CardsInHandBitflag);
         }
         public void AddToBitflag(int num)
         {
@@ -319,21 +316,36 @@ namespace NecroDeck
             Cards = Cards.ConcatItem(cardId).ToList();
             ModifyRunState(x => x.DrawnCards = new HashSet<int>(x.DrawnCards.ConcatItem(cardId)));
         }
-        internal void DrawCards(int v)
+        internal void DrawCards(int cardsToDraw)
         {
             int max = Global.Deck.Cards.Count;
 
+            int i = 0;
+            int z = 0;
             var newRunState = RunState.Clone();
-            var c = newRunState.DrawnCards.Count;
-            while (newRunState.DrawnCards.Count - c < v)
+            while (z < cardsToDraw && i < Global.Deck.CardNumbers.Count)
             {
-                if (newRunState.DrawnCards.Count >= max)
+                if (newRunState.DrawnCards.Add(newRunState.CardOrder[i]))
                 {
-                    break;
+                    newRunState.DrawnCards.Add(newRunState.CardOrder[i]);
+                    z++;
                 }
-                int number = newRunState.Random.Next(0, max);
-                newRunState.DrawnCards.Add(number);
+                i++;
             }
+
+
+
+            //var newRunState = RunState.Clone();
+            //var c = newRunState.DrawnCards.Count;
+            //while (newRunState.DrawnCards.Count - c < cardsToDraw)
+            //{
+            //    if (newRunState.DrawnCards.Count >= max)
+            //    {
+            //        break;
+            //    }
+            //    int number = newRunState.Random.Next(0, max);
+            //    newRunState.DrawnCards.Add(number);
+            //}
             var newCards = newRunState.DrawnCards.Except(RunState.DrawnCards).ToList();
 
             var totalCards = new List<int>(Cards);

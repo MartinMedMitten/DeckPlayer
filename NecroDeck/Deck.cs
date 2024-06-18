@@ -7,8 +7,11 @@ namespace NecroDeck
     public class Deck
     {
         public List<string> Cards { get; set; }
-        public Deck()
+        public List<int> CardNumbers { get; set; } = new List<int>(); //a bit silly, this is just 1-60
+        public List<int> PriorityList { get; set; } = new List<int>(); 
+        public Deck(int? cut = null)
         {
+            Global.Dict.Clear();
             var tmp = File.ReadAllLines("decklist.txt").ToList();
             Cards = new List<string>();
             foreach (var x in tmp)
@@ -22,6 +25,12 @@ namespace NecroDeck
                 var name = string.Join(" ", ss.Skip(1)).Trim().ToLower();
                 for (int i = 0; i < num; i++)
                 {
+                    if (Cards.Count == cut)
+                    {
+                        cut = null;
+                        continue;
+                    }
+                    CardNumbers.Add(Cards.Count);
                     Cards.Add(name);
                 }
             }
@@ -46,6 +55,17 @@ namespace NecroDeck
             {
                 Global.ContainsCantor = false;
             }
+
+
+            AddPriority("necrodominance");
+            AddPriority("dark ritual");
+            AddPriority("lotus petal");
+            Rules.InitRuleDict(this);
+        }
+
+        private void AddPriority(string v)
+        {
+            PriorityList.AddRange(Global.Dict[v]);
         }
 
         private List<string> OrderByPriority(List<string> cards)

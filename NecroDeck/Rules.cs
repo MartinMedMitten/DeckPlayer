@@ -13,6 +13,9 @@ namespace NecroDeck
 
         public static void InitRuleDict(Deck deck)
         {
+            MetadataDictionary.Clear();
+            RuleDictFromHand.Clear();
+            RuleDictFromPlay.Clear();
             var cardTypes = Assembly.GetExecutingAssembly().GetTypes()
             .Where(t => t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(CardMetaData)))
             .ToList();

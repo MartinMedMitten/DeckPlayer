@@ -15,6 +15,7 @@ namespace NecroDeck
         public bool GotNecro => NecroState != null;
         public int Index { get; internal set; }
         public int SerumPowder { get; internal set; }
+        public ulong ExiledToPowder { get; internal set; }
         internal State State { get; set; }
         internal State NecroState { get; set; }
     }
@@ -45,6 +46,8 @@ namespace NecroDeck
                 start.RunState.DrawnCards.Add(x);
             }
 
+            start.RunState.CardOrder = Global.Deck.CardNumbers.OrderBy(p => r.Next()).ToList();
+
             start.Cards = new List<int>();
             start.CardsInPlay = new List<CardInPlay>();
             start.DrawCards(7);
@@ -53,7 +56,7 @@ namespace NecroDeck
 
             start.RunState.CantorInHand = start.Cards.Contains(Global.CantorId);
 
-            bool containsPact = start.ContainsCards("pact of negation"); //TODO does not work with serum powder currently, so protected % will be to high
+            bool containsPact = start.HasOne("pact of negation"); //TODO does not work with serum powder currently, so protected % will be to high
 
             if (Global.DebugOutput)
             {
@@ -68,7 +71,7 @@ namespace NecroDeck
                 open.Enqueue(start);
                 closed.Add(start);
 
-                start.Powderable = !Global.Dict["tendrils of agony"].All(q => start.HasCardInHand(q)) && Global.Dict["serum powder"].Any(q => start.HasCardInHand(q));
+                start.Powderable = true;
             }
             else
             {
@@ -78,7 +81,7 @@ namespace NecroDeck
                     {
                         x.ModifyRunState((st) => st.CantorInHand = x.HasCardInHand(Global.CantorId)); //might have mulliganed it away
                     }
-                    x.Powderable = !Global.Dict["tendrils of agony"].All(q => x.HasCardInHand(q)) && Global.Dict["serum powder"].Any(q => x.HasCardInHand(q));
+                    x.Powderable = true;
 
                     open.Enqueue(x);
                 }
@@ -93,6 +96,7 @@ namespace NecroDeck
                 State = s,
                 NecroState = postNecroState,
                 SerumPowder = s.RunState.SerumPowder,
+                ExiledToPowder = exiledToPowder | exiledToPowderThisMull
             };
 
 
@@ -192,8 +196,25 @@ namespace NecroDeck
                 {
                     var l = Utility.BitFlagToList(exiledToPowderThisMull);
 
-                    l.RemoveRange(0, mulligans);
-                    
+                    var found = 0;
+                    for (int q = 0; q < Global.Deck.PriorityList.Count; q++)
+                    {
+                        if (found >= mulligans)
+                        {
+                            break;
+                        }
+                        if (Utility.HasBitFlag(Global.Deck.PriorityList[q], exiledToPowderThisMull))
+                        {
+                            l.Remove(Global.Deck.PriorityList[q]);
+                            found++;
+                        }
+                    }
+
+                    if (found < mulligans)
+                    {
+                        l.RemoveRange(0, mulligans-found);
+                    }
+
 
                     exiledToPowder |= Utility.ListToBitflag(l);
                 }
