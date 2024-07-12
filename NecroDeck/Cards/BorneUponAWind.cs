@@ -4,7 +4,7 @@ namespace NecroDeck.Cards
 {
     class BorneUponAWind : CardMetaData
     {
-        public override MetaData MetaData { get; } = new MetaData(Mana.Blue);
+        public override MetaData MetaData { get; } = new MetaData(Speed.Instant, Mana.Blue);
 
         public override string Name => "borne upon a wind";
 

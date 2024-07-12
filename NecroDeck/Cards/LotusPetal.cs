@@ -5,7 +5,7 @@ namespace NecroDeck.Cards
     class LotusPetal : CardMetaData
     {
 
-        public override MetaData MetaData { get; } = new MetaData(Mana.None, true, true);
+        public override MetaData MetaData { get; } = new MetaData(Speed.Sorcery, Mana.None, true, true) { ZeroCost = true };
 
         public override string Name => "lotus petal";
 

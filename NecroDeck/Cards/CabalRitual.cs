@@ -5,7 +5,7 @@ namespace NecroDeck.Cards
     class CabalRitual : CardMetaData
     {
 
-        public override MetaData MetaData { get; } = new MetaData(Mana.Black);
+        public override MetaData MetaData { get; } = new MetaData(Speed.Instant, Mana.Black);
 
         public override string Name => "cabal ritual";
 

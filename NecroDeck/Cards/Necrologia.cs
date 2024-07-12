@@ -4,7 +4,7 @@ namespace NecroDeck.Cards
 {
     class Necrologia : CardMetaData
     {
-        public override MetaData MetaData { get; } = new MetaData(Mana.Black);
+        public override MetaData MetaData { get; } = new MetaData(Speed.Instant, Mana.Black);
 
         public override string Name => "necrologia";
 

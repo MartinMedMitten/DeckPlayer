@@ -6,7 +6,7 @@ namespace NecroDeck.Cards
     class Necrodominance : CardMetaData
     {
 
-        public override MetaData MetaData { get; } = new MetaData(Mana.Black, true);
+        public override MetaData MetaData { get; } = new MetaData(Speed.Sorcery, Mana.Black, true);
 
         public override string Name => "necrodominance";
 

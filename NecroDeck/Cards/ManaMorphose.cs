@@ -5,7 +5,7 @@ namespace NecroDeck.Cards
     class ManaMorphose : CardMetaData
     {
 
-        public override MetaData MetaData { get; } = new MetaData(Mana.Red | Mana.Green);
+        public override MetaData MetaData { get; } = new MetaData(Speed.Instant, Mana.Red | Mana.Green);
 
         public override string Name => "manamorphose";
 

@@ -30,6 +30,8 @@ namespace NecroDeck
                 RuleDictFromHand[i] = t.FromHand;
                 RuleDictFromPlay[i] = t.FromBoard;
             }
+
+            
         }
 
         internal static IEnumerable<State> GetResult(int card1, State state)

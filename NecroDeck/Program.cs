@@ -20,6 +20,7 @@ namespace NecroDeck
             Global.RegularRunCount = 10000;
             Global.DebugOutput = false;
             Global.RunPostNecro = false;
+            Global.UsePostNecroHeuristics = true;
             RegularRun();
             //CutRun();
 

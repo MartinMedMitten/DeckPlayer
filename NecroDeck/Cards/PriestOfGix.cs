@@ -4,7 +4,7 @@ namespace NecroDeck.Cards
 {
     class PriestOfGix : CardMetaData
     {
-        public override MetaData MetaData { get; } = new MetaData(Mana.Black);
+        public override MetaData MetaData { get; } = new MetaData(Speed.Sorcery, Mana.Black);
 
         public override string Name => "priest of gix";
 

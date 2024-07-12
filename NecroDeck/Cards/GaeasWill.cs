@@ -4,7 +4,7 @@ namespace NecroDeck.Cards
 {
     class GaeasWill : CardMetaData
     {
-        public override MetaData MetaData { get; } = new MetaData(Mana.Green);
+        public override MetaData MetaData { get; } = new MetaData(Speed.Sorcery, Mana.Green);
 
         public override string Name => "gaea's will";
 

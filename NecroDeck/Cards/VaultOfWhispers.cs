@@ -5,7 +5,7 @@ namespace NecroDeck.Cards
     class VaultOfWhispers : CardMetaData
     {
 
-        public override MetaData MetaData { get; } = new MetaData(Mana.None, true, true);
+        public override MetaData MetaData { get; } = new MetaData(Speed.Sorcery, Mana.None, true, true);
 
         public override string Name => "vault of whispers";
 

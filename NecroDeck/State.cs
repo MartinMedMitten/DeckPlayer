@@ -29,6 +29,11 @@ namespace NecroDeck
         }
     }
 
+    enum Speed
+    {
+        Sorcery,
+        Instant
+    }
     enum TimingState
     {
         MainPhase,

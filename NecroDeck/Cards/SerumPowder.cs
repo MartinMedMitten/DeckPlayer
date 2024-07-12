@@ -6,7 +6,7 @@ namespace NecroDeck.Cards
     class SerumPowder : CardMetaData
     {
 
-        public override MetaData MetaData { get; } = new MetaData(Mana.None);
+        public override MetaData MetaData { get; } = new MetaData(Speed.Sorcery, Mana.None);
 
         public override string Name => "serum powder";
 

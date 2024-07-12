@@ -11,6 +11,7 @@ namespace NecroDeck
 
         public static int DebugRunCount { get; set; }
         public static int RegularRunCount { get; set; }
+        public static bool UsePostNecroHeuristics { get; internal set; }
 
         public static int CounterInterval
         {

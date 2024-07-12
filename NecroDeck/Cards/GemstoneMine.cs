@@ -5,7 +5,7 @@ namespace NecroDeck.Cards
     class GemstoneMine : CardMetaData
     {
 
-        public override MetaData MetaData { get; } = new MetaData(Mana.None);
+        public override MetaData MetaData { get; } = new MetaData(Speed.Sorcery, Mana.None);
 
         public override string Name => "gemstone mine";
 

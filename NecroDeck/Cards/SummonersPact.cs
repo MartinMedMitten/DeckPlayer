@@ -4,7 +4,7 @@ namespace NecroDeck.Cards
 {
     class SummonersPact : CardMetaData
     {
-        public override MetaData MetaData { get; } = new MetaData(Mana.Green);
+        public override MetaData MetaData { get; } = new MetaData(Speed.Instant, Mana.Green) { ZeroCost = true };
 
         public override string Name => "summoner's pact";
 

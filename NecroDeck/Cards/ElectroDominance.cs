@@ -4,7 +4,7 @@ namespace NecroDeck.Cards
 {
     class ElectroDominance : CardMetaData
     {
-        public override MetaData MetaData { get; } = new MetaData(Mana.Red);
+        public override MetaData MetaData { get; } = new MetaData(Speed.Instant, Mana.Red);
 
         public override string Name => "electrodominance";
 

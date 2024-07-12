@@ -4,7 +4,7 @@ namespace NecroDeck.Cards
 {
     class PactOfNegation : CardMetaData
     {
-        public override MetaData MetaData { get; } = new MetaData(Mana.Blue);
+        public override MetaData MetaData { get; } = new MetaData(Speed.Instant, Mana.Blue) { ZeroCost = true };
 
         public override string Name => "pact of negation";
 

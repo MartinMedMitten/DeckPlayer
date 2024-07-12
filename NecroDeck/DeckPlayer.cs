@@ -104,7 +104,7 @@ namespace NecroDeck
             {
                 var s = open.Dequeue();
 
-                if (s.TimingState == TimingState.InstantOnly)
+                if (s.TimingState == TimingState.InstantOnly && Global.UsePostNecroHeuristics)
                 {
                     //heuristics for post necro win.
                     if (s.CanPay(Mana.Blue, 1, 1) && Global.Dict["borne upon a wind"].Any(p => s.HasCardInHand(p)))

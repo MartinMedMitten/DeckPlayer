@@ -5,7 +5,7 @@ namespace NecroDeck.Cards
 {
     class ValakutAwakening : CardMetaData
     {
-        public override MetaData MetaData { get; } = new MetaData(Mana.Red);
+        public override MetaData MetaData { get; } = new MetaData(Speed.Sorcery, Mana.Red);
 
         public override string Name => "valakut awakening";
 

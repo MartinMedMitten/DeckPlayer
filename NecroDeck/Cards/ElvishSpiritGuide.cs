@@ -5,7 +5,7 @@ namespace NecroDeck.Cards
     class ElvishSpiritGuide : CardMetaData
     {
 
-        public override MetaData MetaData { get; } = new MetaData(Mana.Green);
+        public override MetaData MetaData { get; } = new MetaData(Speed.Instant, Mana.Green);
 
         public override string Name => "elvish spirit guide";
 
